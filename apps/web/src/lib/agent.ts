@@ -44,11 +44,12 @@ export interface CostSummary {
 export interface IdiotIndex {
   id: string;
   label: string;
-  actual: number;
-  theoretical: number;
+  /** null over the wire when a value is not finite — JSON has no Infinity. */
+  actual: number | null;
+  theoretical: number | null;
   unit: string;
   remedy: string;
-  index: number;
+  index: number | null;
   flagged: boolean;
 }
 

@@ -35,9 +35,9 @@ function Row({ label, value, hint, strong }: { label: string; value: string; hin
 }
 
 function IndexBar({ index }: { index: IdiotIndex }) {
-  const capped = Math.min(index.index, 40);
+  const capped = Math.min(index.index ?? 0, 40);
   const width = (capped / 40) * 100;
-  const color = index.flagged ? "var(--danger)" : index.index > 3 ? "var(--warn)" : "var(--success)";
+  const color = index.flagged ? "var(--danger)" : (index.index ?? 0) > 3 ? "var(--warn)" : "var(--success)";
   return (
     <div className="h-1.5 w-full overflow-hidden rounded-full" style={{ background: "var(--surface-2)" }}>
       <div className="h-full rounded-full transition-[width] duration-300" style={{ width: `${width}%`, background: color }} />
@@ -84,7 +84,7 @@ export function CostLedger({ cost, indices, worst }: { cost: CostSummary | null;
               <div className="flex items-baseline justify-between gap-3">
                 <span className="text-xs">{ix.label}</span>
                 <span className="mono text-xs tabular-nums" style={{ color: ix.flagged ? "var(--danger)" : "var(--muted)" }}>
-                  {ix.index.toFixed(2)}×
+                  {ix.index == null ? "—" : `${ix.index.toFixed(2)}×`}
                 </span>
               </div>
               <div className="mt-1.5">
@@ -92,7 +92,7 @@ export function CostLedger({ cost, indices, worst }: { cost: CostSummary | null;
               </div>
               <div className="mt-1 flex items-baseline justify-between gap-3">
                 <span className="mono text-[10px]" style={{ color: "var(--dim)" }}>
-                  {ix.actual.toLocaleString()} / {ix.theoretical.toLocaleString()} {ix.unit}
+                  {(ix.actual ?? 0).toLocaleString()} / {(ix.theoretical ?? 0).toLocaleString()} {ix.unit}
                 </span>
                 {ix.flagged && (
                   <span className="rounded px-1.5 py-0.5 text-[10px]" style={{ background: "var(--diff-removed-bg)", color: "var(--danger)" }}>
