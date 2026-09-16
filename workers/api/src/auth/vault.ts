@@ -140,13 +140,13 @@ export class AuthVault extends DurableObject<Env> {
     const spec = providerSpec(id);
     if (!spec?.oauth) throw new Error(`${id} has no oauth flow`);
     // Dead flows never see another request to settle them, so collect them
-    // two ways: a sweep on every start, and an alarm at this flow's deadline
-    // so a final abandoned flow does not sit in storage forever.
+    // two ways: a sweep on every start, and an alarm at the earliest pending
+    // deadline so a final abandoned flow does not sit in storage forever.
     await this.sweepFlows();
     const { pending, display } = await oauthStart(id);
     const flowId = crypto.randomUUID();
     await this.ctx.storage.put(`oauth:flow:${flowId}`, pending);
-    await this.ctx.storage.setAlarm(pending.deadline);
+    await this.armFlowSweep();
     return { ...display, flowId };
   }
 
@@ -157,9 +157,22 @@ export class AuthVault extends DurableObject<Env> {
     if (doomed.length) await this.ctx.storage.delete(doomed);
   }
 
-  /** The alarm fires at a flow's deadline; collect every flow it outlived. */
+  /**
+   * Arms the alarm at the earliest pending deadline. setAlarm replaces the
+   * previous schedule, so arming "this flow's deadline" could strand a
+   * longer-lived flow — the alarm must always cover what remains.
+   */
+  private async armFlowSweep(): Promise<void> {
+    const flows = await this.ctx.storage.list<PendingOAuth>({ prefix: "oauth:flow:" });
+    let earliest = Infinity;
+    for (const [, p] of flows) earliest = Math.min(earliest, p.deadline);
+    if (earliest !== Infinity) await this.ctx.storage.setAlarm(earliest);
+  }
+
+  /** The alarm fires at the earliest deadline; sweep, then re-arm for the rest. */
   async alarm(): Promise<void> {
     await this.sweepFlows();
+    await this.armFlowSweep();
   }
 
   /** Poll a device flow once. The GUI calls this on the provider's interval. */
