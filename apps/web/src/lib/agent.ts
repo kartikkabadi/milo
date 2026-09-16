@@ -69,7 +69,7 @@ export type TranscriptEvent =
  * untyped hop in a single place instead of scattering `as` through the hooks.
  */
 interface SessionRpc {
-  run(tier: Tier, prompt: string, opts?: { yoloApproved?: boolean }): Promise<{ output: string }>;
+  run(tier: Tier, prompt: string): Promise<{ output: string }>;
   launch(opts: { harness: HarnessId; repo: string; model?: string }): Promise<{ log: string[] }>;
   sleep(reason?: string): Promise<{ sha: string | null; log: string[] }>;
   wake(opts: { repoUrl?: string }): Promise<{ sha: string | null; log: string[] }>;
@@ -93,7 +93,7 @@ export interface SessionApi {
   indices: IdiotIndex[];
   worst: IdiotIndex[];
   gate: { heldBy: string | null; expiresAt: number; queue: { sessionId: string; position: number }[] } | null;
-  send: (tier: Tier, prompt: string, opts?: { yoloApproved?: boolean }) => Promise<void>;
+  send: (tier: Tier, prompt: string) => Promise<void>;
   resolve: (id: string, decision: "allow" | "deny") => Promise<void>;
   sleep: () => Promise<void>;
   wake: () => Promise<void>;
@@ -241,10 +241,10 @@ export function useMiloSession(sessionId: string, agentHost = ""): SessionApi {
   }, [state?.tier, push]);
 
   const send = useCallback(
-    async (tier: Tier, prompt: string, opts: { yoloApproved?: boolean } = {}) => {
+    async (tier: Tier, prompt: string) => {
       push({ kind: "prompt", id: nextId(), ts: Date.now(), tier, text: prompt });
       try {
-        const result = await rpc.run(tier, prompt, opts);
+        const result = await rpc.run(tier, prompt);
         if (result?.output) push({ kind: "text", id: nextId(), ts: Date.now(), tier, text: result.output });
       } catch (err) {
         setError(String(err instanceof Error ? err.message : err));

@@ -84,7 +84,7 @@
       "id": "forge-red",
       "label": "Forge Red",
       "mode": "dark",
-      "blurb": "Danger and --yolo only. Never full-time.",
+      "blurb": "Danger only. Never full-time.",
       "defaultFor": null,
       "danger": true,
       "artifacts": {

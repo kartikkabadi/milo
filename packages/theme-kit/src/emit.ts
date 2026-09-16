@@ -474,28 +474,6 @@ ${cssVars(palettes["forge-red"])}
 `;
 }
 
-/**
- * Command Code has no custom theme JSON. It ships exactly three values —
- * `dark`, `light`, `auto` — so Milo maps its seven themes onto those three and
- * does not pretend to do more. `auto` follows the terminal background via
- * OSC-11 detection.
- *
- * The mapping is emitted rather than inlined so the GUI, the CLI, and the
- * harness adapter cannot disagree about what "Spartan Night" means to `cmd`.
- */
-export function commandCodeTheme(p: Palette): { theme: "dark" | "light" | "auto"; note: string } {
-  if (p.mode === "light") {
-    return {
-      theme: "light",
-      note: `${p.label} is a light theme, so Command Code gets \`--theme light\`. Milo ships no custom JSON for cmd.`,
-    };
-  }
-  return {
-    theme: "dark",
-    note: `${p.label} is a dark theme, so Command Code gets \`--theme dark\`. Dark is designed here, not inverted.`,
-  };
-}
-
 /** Every artifact the theme CLI writes, as path -> contents. */
 export function emitAll(): Record<string, string> {
   const out: Record<string, string> = {};
@@ -574,7 +552,6 @@ export function emitAll(): Record<string, string> {
       xterm: Object.fromEntries(paletteList.map((p) => [p.id, emitXterm(p)])),
       opencode: Object.fromEntries(paletteList.map((p) => [p.id, emitOpenCodeSingle(p)])),
       opencodeGreek: emitOpenCodeGreek(),
-      commandCode: Object.fromEntries(paletteList.map((p) => [p.id, commandCodeTheme(p)])),
     },
     null,
     2,

@@ -52,7 +52,7 @@ const FAQ = [
   },
   {
     q: "Which harnesses does it support?",
-    a: "Pi, OpenCode, and Command Code, as three separate adapters. Pi runs in every tier. OpenCode's Plan, Explore, and Scout stay read-only in Tiers 0-1. Command Code runs without --yolo in Tiers 0-1, and --yolo only inside Tier 3, behind an approval.",
+    a: "Pi and OpenCode, as two separate adapters. Pi runs in every tier. OpenCode's Plan, Explore, and Scout stay read-only in Tiers 0-1; Build is Tier 3 only. Provider sign-in — API keys and OAuth — lives in the app's Connect panel, not in a TUI.",
   },
   {
     q: "What does it cost at 10 agents?",

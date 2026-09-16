@@ -108,15 +108,15 @@ Seven themes ship. Two are defaults, four are alternates, one is a warning.
 | Milo Light | light | original, still shipped |
 | Ion Purple | dark | alternate |
 | Halo Ring | dark | alternate, carries the sleep/wake ring |
-| Forge Red | dark | **danger and `--yolo` only. Never full-time.** |
+| Forge Red | dark | **danger only. Never full-time.** |
 
 **One accent per theme.** `accent` is actions, cursor, and links. Nothing else.
 
 Dark themes use a **warm off-black**, never pure black. The single exception is
 Halo Ring, which is a void by design.
 
-Forge Red is reserved for destructive actions, bypassed approvals, and `--yolo`
-runs. The GUI requires an explicit confirmation before selecting it, and the
+Forge Red is reserved for destructive actions and bypassed approvals.
+The GUI requires an explicit confirmation before selecting it, and the
 theme menu labels it. It is not a mood. It is a warning.
 
 ### Greek motif usage, inside the app

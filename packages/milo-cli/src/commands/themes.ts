@@ -8,10 +8,6 @@
  *   .opencode/themes/milo-greek.json  OpenCode's project theme directory
  *   .opencode/themes/<id>.json
  *   .opencode/tui.json             OpenCode's theme selection
- *
- * Command Code gets no files. It has exactly three theme values (dark, light,
- * auto) and no custom JSON, so Milo maps its seven onto those three and says so
- * rather than writing a file cmd will ignore.
  */
 
 import { mkdir, writeFile, readFile } from "node:fs/promises";
@@ -23,7 +19,6 @@ import bundle from "../../themes/bundle.json" with { type: "json" };
 const PI_THEMES = bundle.pi as Record<string, unknown>;
 const OPENCODE_THEMES = bundle.opencode as Record<string, unknown>;
 const OPENCODE_GREEK = bundle.opencodeGreek as unknown;
-const COMMAND_CODE = bundle.commandCode as Record<string, { theme: string; note: string }>;
 
 async function writeIfChanged(path: string, contents: string): Promise<"wrote" | "unchanged"> {
   let existing: string | null = null;
@@ -83,13 +78,6 @@ export async function themes(args: string[]): Promise<number> {
   }
 
   process.stdout.write(`\n  ${wrote} written, ${unchanged} unchanged\n`);
-
-  process.stdout.write(`\n${c.bold("Command Code")}\n`);
-  process.stdout.write(`  ${c.dim("cmd has no custom theme JSON. it takes dark, light, or auto.")}\n`);
-  for (const [id, mapping] of Object.entries(COMMAND_CODE)) {
-    process.stdout.write(`  ${id.padEnd(16)} -> ${c.accent(`--theme ${mapping.theme}`)}\n`);
-  }
-  process.stdout.write(`\n  ${c.dim("auto follows the terminal background via OSC-11. dark is designed here, not inverted.")}\n`);
 
   if (report) {
     process.stdout.write(`\n${c.bold("truecolor check")}\n`);

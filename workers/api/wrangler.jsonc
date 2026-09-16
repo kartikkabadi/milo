@@ -31,6 +31,7 @@
     "bindings": [
       { "name": "MILO_SESSION", "class_name": "MiloSession" },
       { "name": "CONTAINER_GATE", "class_name": "ContainerGate" },
+      { "name": "MILO_AUTH", "class_name": "AuthVault" },
       { "name": "Sandbox", "class_name": "Sandbox" }
     ]
   },
@@ -38,7 +39,8 @@
   "migrations": [
     { "tag": "v1", "new_sqlite_classes": ["MiloSession"] },
     { "tag": "v2", "new_sqlite_classes": ["ContainerGate"] },
-    { "tag": "v3", "new_sqlite_classes": ["Sandbox"] }
+    { "tag": "v3", "new_sqlite_classes": ["Sandbox"] },
+    { "tag": "v4", "new_sqlite_classes": ["AuthVault"] }
   ],
 
   "containers": [
@@ -63,9 +65,12 @@
   // Secrets are set with `wrangler secret put`, never committed. See README.md.
   //
   //   AI_GATEWAY_TOKEN     - Tier 0 think. Never enters the sandbox.
-  //   MODEL_PROVIDER_KEY_* - passed to the harness inside the sandbox with
-  //                          setEnvVars. Unavoidable: the harness has to call
-  //                          the model. Scoped to that session's container.
+  //
+  // Provider credentials are NOT wrangler secrets. They are user credentials,
+  // entered in the GUI's Connect panel and stored in the AuthVault DO. The
+  // session DO projects them into the sandbox at run time —
+  // OPENCODE_AUTH_CONTENT for OpenCode, ~/.pi/agent/auth.json for Pi —
+  // scoped to that session's container. See src/auth/.
   //
   // Note what is NOT here: a GitHub token. Nothing in the sandbox needs one,
   // because every step that touches a credential runs in the Worker. See

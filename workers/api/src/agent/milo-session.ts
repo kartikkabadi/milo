@@ -42,6 +42,7 @@ import {
 import { Ledger } from "./ledger.ts";
 import { cmd, commitWip, restoreSnapshot, writeSnapshot } from "./snapshot.ts";
 import { getHarness, gateForTier } from "../harness/index.ts";
+import { injectHarnessAuth } from "../auth/inject.ts";
 import { INSTANCE_TYPES } from "../cost/rates.ts";
 import { includedContainerHours } from "../cost/model.ts";
 import { miloIndices, worstIndices, type IdiotIndexResult } from "../cost/idiot-index.ts";
@@ -283,6 +284,16 @@ export class MiloSession extends Agent<Env, MiloState> {
       repoUrl: opts.repoUrl,
     });
 
+    // The container's home directory does not survive a sleep — snapshots
+    // cover /workspace only. Re-inject credentials on every wake.
+    if (this.state.harness) {
+      try {
+        await injectHarnessAuth(this.env, sandbox, this.state.harness);
+      } catch {
+        // Auth is recoverable on the next run; a wake must not fail for it.
+      }
+    }
+
     this.ledger.record({
       ts: Date.now(), sessionId: this.name, tier: 3, kind: "wake",
       containerSeconds: 30, vcpuSeconds: 30 * LITE.vcpu * 0.9, doSeconds: 3,
@@ -335,6 +346,19 @@ export class MiloSession extends Agent<Env, MiloState> {
       log.push(...woken.log);
     }
 
+    // Provider credentials ride along with the launch so an interactive
+    // `pi`/`opencode` in the terminal tab is authenticated too, not only the
+    // headless runs. A vault outage must not wedge a launch.
+    const sandbox = this.sandbox();
+    if (sandbox) {
+      try {
+        const auth = await injectHarnessAuth(this.env, sandbox, opts.harness);
+        if (auth.count > 0) log.push(`injected ${auth.count} provider credential(s)`);
+      } catch (err) {
+        log.push(`auth injection failed: ${err instanceof Error ? err.message : String(err)}`);
+      }
+    }
+
     return { ok: true, sessionId: this.name, log };
   }
 
@@ -345,7 +369,7 @@ export class MiloSession extends Agent<Env, MiloState> {
    * work into a container, the bill triples and the idiot index says so.
    */
   @callable()
-  async run(tier: Tier, prompt: string, opts: { yoloApproved?: boolean } = {}): Promise<{
+  async run(tier: Tier, prompt: string): Promise<{
     tier: Tier;
     gated: ReturnType<typeof gateForTier>;
     output: string;
@@ -383,13 +407,17 @@ export class MiloSession extends Agent<Env, MiloState> {
       throw new Error(`${harness.label} is not permitted at Tier 3`);
     }
 
-    const spec = harness?.build(prompt, { tier: 3, model: this.state.model ?? undefined, yoloApproved: opts.yoloApproved });
+    const spec = harness?.build(prompt, { tier: 3, model: this.state.model ?? undefined });
 
     await this.acquireContainer();
     const started = Date.now();
     try {
+      // Credentials are injected inside the lease, not before it: with
+      // max_instances 1 the lease is the only thing that stops two sessions
+      // racing the same box.
+      const auth = harness ? await injectHarnessAuth(this.env, sandbox, harness.id) : { env: {}, count: 0 };
       const result = spec
-        ? await sandbox.exec(cmd(spec.command, ...spec.args), { cwd: spec.cwd })
+        ? await sandbox.exec(cmd(spec.command, ...spec.args), { cwd: spec.cwd, env: { ...spec.env, ...auth.env } })
         : await sandbox.exec(prompt, { cwd: "/workspace" });
 
       const wallMs = Date.now() - started;

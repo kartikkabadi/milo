@@ -1,12 +1,12 @@
 /**
  * Harness adapters.
  *
- * Pi, OpenCode, and Command Code are three separate tools. They do not share
- * a config format, a permission model, or a headless contract. The temptation
- * is to build one abstraction over all three and lose what makes each useful.
- * Milo does not do that. It builds one small adapter per harness that exposes
- * exactly what the tier ladder needs: how to run it, which tiers it may run
- * in, and how to read its output.
+ * Pi and OpenCode are two separate tools. They do not share a config format,
+ * a permission model, or a headless contract. The temptation is to build one
+ * abstraction over both and lose what makes each useful. Milo does not do
+ * that. It builds one small adapter per harness that exposes exactly what the
+ * tier ladder needs: how to run it, which tiers it may run in, and how to
+ * read its output.
  *
  * The tier rules are not advisory. `allowedTiers` is checked by the ladder
  * before a command is built, and a harness that is asked to do something
@@ -48,8 +48,6 @@ export interface BuildOpts {
   model?: string;
   /** Session id, used for resuming. */
   sessionId?: string;
-  /** Explicit approval for destructive flags. Required for --yolo. */
-  yoloApproved?: boolean;
   /** Working directory. */
   cwd?: string;
 }
@@ -198,81 +196,9 @@ export const opencode: HarnessAdapter = {
   },
 };
 
-/* ------------------------------------------------------------------ *
- * Command Code
- *
- * `cmd -p` blocks file writes and shell commands by default. `--yolo` enables
- * them. So the rule writes itself:
- *   without --yolo  -> Tier 0-1. Read-only, no filesystem, no container.
- *   with  --yolo    -> Tier 3 only, behind an explicit approval.
- *
- * Command Code has no custom theme JSON. It ships `dark`, `light`, and `auto`,
- * where `auto` follows the terminal background via OSC-11. Milo maps its own
- * themes onto those three and does not pretend otherwise.
- * ------------------------------------------------------------------ */
-
-export const commandCode: HarnessAdapter = {
-  id: "command-code",
-  label: "Command Code",
-  allowedTiers: [0, 1, 3],
-  themeArg: (themeId) => ["--theme", commandCodeThemeFor(themeId)],
-  build(prompt, opts) {
-    assertTier(commandCode, opts.tier);
-    const wantsYolo = opts.tier === 3 && opts.yoloApproved === true;
-    const args = ["-p", prompt, "--output-format", "json"];
-    if (wantsYolo) args.push("--yolo");
-    if (opts.model) args.push("--model", opts.model);
-    if (opts.tier <= 1) args.push("--skip-onboarding");
-    return {
-      command: "cmd",
-      args,
-      cwd: opts.cwd ?? "/workspace",
-      env: {},
-      mutates: wantsYolo,
-      needsFilesystem: wantsYolo,
-    };
-  },
-  parse(line) {
-    const trimmed = line.trim();
-    if (!trimmed.startsWith("{")) return null;
-    try {
-      const ev = JSON.parse(trimmed) as Record<string, unknown>;
-      const type = String(ev.type ?? "");
-      if (type === "assistant" || type === "text") return { type: "text", delta: String(ev.text ?? "") };
-      if (type === "tool_use") return { type: "tool-start", tool: String(ev.name ?? ""), args: ev.input };
-      if (type === "tool_result") return { type: "tool-end", tool: String(ev.name ?? ""), ok: ev.is_error !== true };
-      if (type === "error") return { type: "error", message: String(ev.message ?? "unknown cmd error") };
-      return null;
-    } catch {
-      return null;
-    }
-  },
-};
-
-/**
- * Command Code only has three themes. Map Milo's seven onto them rather than
- * inventing a fourth and lying about it.
- */
-export function commandCodeThemeFor(themeId: string): "dark" | "light" | "auto" {
-  switch (themeId) {
-    case "hellas-marble":
-    case "milo-light":
-      return "light";
-    case "spartan-night":
-    case "milo-dark":
-    case "ion-purple":
-    case "halo-ring":
-    case "forge-red":
-      return "dark";
-    default:
-      return "auto";
-  }
-}
-
 export const HARNESSES: Record<HarnessId, HarnessAdapter> = {
   pi,
   opencode,
-  "command-code": commandCode,
 };
 
 export function getHarness(id: HarnessId): HarnessAdapter {

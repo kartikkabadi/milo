@@ -144,7 +144,7 @@ export function ThemeMenu() {
                 Forge Red is a warning theme.
               </p>
               <p className="mt-1" style={{ color: "var(--muted)" }}>
-                It is reserved for destructive actions, bypassed approvals, and <code>--yolo</code> runs. Selecting it changes
+                It is reserved for destructive actions and bypassed approvals. Selecting it changes
                 nothing about permissions — it only makes the danger visible.
               </p>
               <div className="mt-2 flex gap-2">

@@ -193,9 +193,9 @@ and `bun run check` verifies they agree.
 **The mistake.** A harness asked to do something outside its tier list gets
 quietly downgraded, or a tool that fails gets swallowed.
 
-**Why it is wrong.** `--yolo` running outside Tier 3 is a security bug, not a
-performance bug. And a silently-skipped restore is a data-loss bug that looks
-like a success.
+**Why it is wrong.** A destructive flag running outside Tier 3 is a security
+bug, not a performance bug. And a silently-skipped restore is a data-loss bug
+that looks like a success.
 
 **The fix.** `assertTier` throws. `restoreSnapshot` returns `skippedBigFiles`
 and the CLI prints them. `milo doctor` reports blockers with a fix.

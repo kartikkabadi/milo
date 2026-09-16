@@ -6,6 +6,7 @@
 
 import type { Env, HarnessId, Tier } from "../env.ts";
 import { getHarness, HARNESSES } from "../harness/index.ts";
+import { vaultStub } from "../auth/inject.ts";
 import { THEMES } from "./themes.ts";
 import { includedContainerHours, priceScenario } from "../cost/model.ts";
 import { INSTANCE_TYPES } from "../cost/rates.ts";
@@ -50,15 +51,68 @@ export async function handleApi(request: Request, env: Env, _ctx: ExecutionConte
         note:
           h.id === "pi"
             ? "Runs in every tier. The only harness that can genuinely work without a filesystem."
-            : h.id === "opencode"
-              ? "Plan/Explore/Scout are read-only and stay in Tiers 0-1. Build is Tier 3 only."
-              : "Without --yolo it is read-only and stays in Tiers 0-1. --yolo is Tier 3 only, behind an approval.",
+            : "Plan/Explore/Scout are read-only and stay in Tiers 0-1. Build is Tier 3 only.",
       })),
     });
   }
 
   if (path === "/themes" && method === "GET") {
     return json({ themes: THEMES });
+  }
+
+  /* ---------------------------------------------------------------- *
+   * Provider auth — the GUI's Connect panel
+   *
+   * Secrets only ever travel browser -> Worker -> vault/sandbox. The
+   * browser-facing surface returns provider metadata, OAuth display
+   * instructions, and last-four hints — never a credential value.
+   * ---------------------------------------------------------------- */
+
+  if (path === "/auth/providers" && method === "GET") {
+    return json({ providers: await vaultStub(env).list() });
+  }
+
+  const providerMatch = /^\/auth\/providers\/([A-Za-z0-9_-]{1,64})$/.exec(path);
+  if (providerMatch) {
+    const id = providerMatch[1];
+    const vault = vaultStub(env);
+    if (method === "PUT") {
+      const body = (await request.json().catch(() => ({}))) as { key?: string };
+      if (!body.key) return bad("key is required");
+      const res = await vault.setApiKey(id, body.key);
+      return res.ok ? json(res) : bad(`${id} does not take an API key, or the key was rejected`, 422);
+    }
+    if (method === "DELETE") {
+      return json(await vault.remove(id));
+    }
+    return bad("method not allowed", 405);
+  }
+
+  if (path === "/auth/oauth/start" && method === "POST") {
+    const body = (await request.json().catch(() => ({}))) as { provider?: string };
+    if (!body.provider) return bad("provider is required");
+    try {
+      return json(await vaultStub(env).oauthStart(body.provider));
+    } catch (err) {
+      return bad(err instanceof Error ? err.message : String(err));
+    }
+  }
+
+  if (path === "/auth/oauth/finish" && method === "POST") {
+    const body = (await request.json().catch(() => ({}))) as { provider?: string; input?: string };
+    if (!body.provider) return bad("provider is required");
+    if (!body.input) return bad("input is required — the pasted redirect URL or code");
+    try {
+      return json(await vaultStub(env).oauthFinish(body.provider, body.input));
+    } catch (err) {
+      return bad(err instanceof Error ? err.message : String(err));
+    }
+  }
+
+  if (path === "/auth/oauth/status" && method === "GET") {
+    const provider = url.searchParams.get("provider");
+    if (!provider) return bad("provider is required");
+    return json(await vaultStub(env).oauthPoll(provider));
   }
 
   /* ---------------------------------------------------------------- *
@@ -155,13 +209,13 @@ export async function handleApi(request: Request, env: Env, _ctx: ExecutionConte
     }
 
     if (rest === "/run" && method === "POST") {
-      const body = (await request.json()) as { tier?: number; prompt?: string; yoloApproved?: boolean };
+      const body = (await request.json()) as { tier?: number; prompt?: string };
       if (typeof body.tier !== "number" || ![0, 1, 2, 3].includes(body.tier)) {
         return bad("tier must be 0, 1, 2, or 3");
       }
       if (!body.prompt) return bad("prompt is required");
       try {
-        return json(await stub.run(body.tier as Tier, body.prompt, { yoloApproved: body.yoloApproved }));
+        return json(await stub.run(body.tier as Tier, body.prompt));
       } catch (err) {
         return bad(String(err), 409);
       }

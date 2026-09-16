@@ -1,10 +1,9 @@
 /**
  * Approvals.
  *
- * The rule the brief sets: OpenCode allow/ask/deny, Command Code --yolo gating,
- * Pi permission-gate. All three reduce to the same two buttons here, with one
- * difference that matters — a destructive request says so, in the danger
- * colour, before you click.
+ * The rule the brief sets: OpenCode allow/ask/deny, Pi permission-gate. Both
+ * reduce to the same two buttons here, with one difference that matters — a
+ * destructive request says so, in the danger colour, before you click.
  *
  * "Allow" is never the visually dominant action on a destructive request. That
  * is the whole design decision in this component.

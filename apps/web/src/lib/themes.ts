@@ -90,7 +90,7 @@ const META: Record<string, { label: string; mode: ThemeMode; blurb: string; defa
   "milo-light": { label: "Milo Light", mode: "light", blurb: "The original daylight. Plain paper.", defaultFor: null, danger: false },
   "ion-purple": { label: "Ion Purple", mode: "dark", blurb: "Black-violet at the top, ionising downward.", defaultFor: null, danger: false },
   "halo-ring": { label: "Halo Ring", mode: "dark", blurb: "Void black with an electric ring. Ring opens on wake.", defaultFor: null, danger: false },
-  "forge-red": { label: "Forge Red", mode: "dark", blurb: "Danger and --yolo only. Never full-time.", defaultFor: null, danger: true },
+  "forge-red": { label: "Forge Red", mode: "dark", blurb: "Danger only. Never full-time.", defaultFor: null, danger: true },
 };
 
 export const themes: ThemeMeta[] = ORDER.map((id) => {

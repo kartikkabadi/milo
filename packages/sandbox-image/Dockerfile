@@ -1,10 +1,9 @@
 # Milo sandbox image.
 #
-# One container, three harnesses, no secrets.
+# One container, two harnesses, no secrets.
 #
 # Design notes that matter:
 #
-#   - Node 22+, because Command Code refuses to start on Node 20 or below.
 #   - `--ignore-scripts` on the Pi install. Pi does not need lifecycle scripts,
 #     and skipping them removes a supply-chain surface from an image that will
 #     run model-generated code.
@@ -12,9 +11,10 @@
 #     themes/bundle.json, so a deployed Worker and the harness config it
 #     references can never disagree. A theme baked into an image is a theme
 #     that silently goes stale.
-#   - No credentials, ever. GitHub and model keys live in the Worker and are
-#     injected by the outbound handler. A `docker history` on this image
-#     reveals nothing sensitive, and neither does a shell inside it.
+#   - No credentials, ever. Provider keys and OAuth tokens live in the
+#     Worker's AuthVault and are injected per session — OPENCODE_AUTH_CONTENT
+#     for OpenCode, ~/.pi/agent/auth.json for Pi. A `docker history` on this
+#     image reveals nothing sensitive, and neither does a shell inside it.
 #   - node_modules is deliberately absent from the snapshot path, so `npm ci`
 #     has to be fast: the npm cache is warmed for the common toolchain.
 
@@ -52,18 +52,15 @@ RUN npm install -g pnpm@latest --ignore-scripts \
  && curl -fsSL https://bun.sh/install | bash \
  && mv /root/.bun/bin/bun /usr/local/bin/bun
 
-# The three harnesses. Three separate tools, three separate installs, no
-# wrapper pretending they are one thing.
+# The two harnesses. Two separate tools, two separate installs, no wrapper
+# pretending they are one thing.
 #
 #   Pi           --mode json for the event stream; themes from themes/pi/*.json
 #   OpenCode     -- plan/explore/scout are read-only, build needs a filesystem
-#   Command Code -- -p is read-only by default; --yolo is gated behind Tier 3
 RUN npm install -g --ignore-scripts @earendil-works/pi-coding-agent \
  && npm install -g opencode-ai \
- && npm install -g command-code@latest \
  && pi --version \
- && opencode --version \
- && cmd --version
+ && opencode --version
 
 # Warm the npm cache with the packages every agent reaches for first. This is
 # the cheapest possible fix for the most expensive repeated cost: `npm ci` on

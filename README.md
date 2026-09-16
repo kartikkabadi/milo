@@ -4,8 +4,8 @@
 
 Milo keeps your main green. You keep building.
 
-Milo is a Cloudflare-native GUI for running cloud coding agents — Pi, OpenCode,
-and Command Code — with extreme cost efficiency. Ten agents, ten hours a day,
+Milo is a Cloudflare-native GUI for running cloud coding agents — Pi and
+OpenCode — with extreme cost efficiency. Ten agents, ten hours a day,
 thirty days: **3,000 agent-hours a month for $7.02**, and every dollar of that is
 on screen while it is being spent.
 
@@ -29,9 +29,14 @@ bun run dev:api      # wrangler dev, port 8787
 bun run dev:web      # vite, port 5273
 ```
 
-Open http://localhost:5273. The GUI is three columns: the tier ladder and
-harness picker on the left; the transcript, terminal, diff viewer, and git
-timeline in the centre; and approvals plus the **cost ledger** on the right.
+Open http://localhost:5273. The GUI is three columns: the tier ladder, harness
+picker, and **Connect panel** on the left; the transcript, terminal, diff
+viewer, and git timeline in the centre; and approvals plus the **cost ledger**
+on the right.
+
+Connect is where provider auth lives — API keys and OAuth sign-ins, stored in
+the Worker's AuthVault and injected into the sandbox for each run. There is no
+TUI to open and no auth.json to manage by hand. See **Secrets** below.
 
 ### The CLI
 
@@ -168,10 +173,11 @@ apps/web/               React + Tailwind v4 + xterm + useAgent. All seven themes
 workers/api/            Worker + MiloSession DO + ContainerGate + tier ladder.
   src/cost/             rates.ts (with source URLs) · model.ts · workload.ts · idiot-index.ts
   src/agent/            milo-session.ts · snapshot.ts · ledger.ts
-  src/harness/          Pi · OpenCode · Command Code, as three separate adapters
+  src/harness/          Pi · OpenCode, as two separate adapters
+  src/auth/             AuthVault DO · provider catalog · OAuth flows · injection
   src/gate/             container-gate.ts — the single lease
 packages/theme-kit/     one palette source → Pi, OpenCode, xterm, and web CSS
-packages/sandbox-image/ Dockerfile: three harnesses, no secrets
+packages/sandbox-image/ Dockerfile: two harnesses, no secrets
 packages/milo-cli/      the milo CLI — runs from source via `bun run milo`
 brand/                  mark, wordmark, app icon, rules, hero copy, Thiel note
 themes/                 GENERATED. Do not hand-edit.
@@ -222,7 +228,7 @@ Nothing under `themes/` is hand-edited.
 | Milo Light | light | original, still shipped |
 | Ion Purple | dark | alternate |
 | Halo Ring | dark | alternate. Ring closes on sleep, opens on wake. |
-| Forge Red | dark | **danger and `--yolo` only.** Gated behind a confirmation. |
+| Forge Red | dark | **danger only.** Gated behind a confirmation. |
 
 ```sh
 bun run themes    # regenerate every artifact
@@ -231,33 +237,43 @@ bun run check     # fail if anything drifted
 
 Emitted for all seven: Pi theme JSON (53 required tokens + 3 optional), OpenCode
 theme JSON (single-mode and a combined `milo-greek` with dark/light variants),
-xterm `ITheme`, and web CSS variables. Command Code gets **no files** — `cmd` has
-exactly three theme values and no custom JSON, so Milo maps its seven onto
-`dark` / `light` / `auto` and says so rather than writing a file `cmd` ignores.
+xterm `ITheme`, and web CSS variables.
 
 ---
 
 ## Secrets
 
-**Milo ships no secrets and reads none from the repo.** Every secret is set with
-`wrangler secret put` and never enters the container.
+Two kinds, kept separate on purpose.
+
+**Milo's own secrets** are set with `wrangler secret put` and never enter the
+container:
 
 | secret | used for |
 |---|---|
-| `GITHUB_TOKEN` | injected by the outbound handler. The sandbox asks for `http://github.milo.internal` and gets an authenticated `github.com` response. **The token never enters the sandbox.** |
-| `AI_GATEWAY_TOKEN` | Tier 0 think, same mechanism via `gateway.milo.internal` |
+| `AI_GATEWAY_TOKEN` | Tier 0 think, via AI Gateway |
 | `R2_ACCESS_KEY_ID` / `R2_SECRET_ACCESS_KEY` | only for remote-endpoint bucket mounts |
-| `MODEL_PROVIDER_KEY_*` | passed to the harness inside the sandbox, for the model calls it makes directly |
 
 ```sh
 cd workers/api
-bunx wrangler secret put GITHUB_TOKEN
 bunx wrangler secret put AI_GATEWAY_TOKEN
 ```
 
-Egress is deny-by-default (`enableInternet = false` plus an explicit
-`allowedHosts` list). A `docker history` on the sandbox image reveals nothing, and
-neither does a shell inside it.
+No GitHub token: nothing in the sandbox calls GitHub. Pushing is `milo push`
+locally, with your own credentials. See `workers/api/src/index.ts`.
+
+**Provider credentials are yours**, and they do enter the container — the
+harness has to call the model. They are not wrangler secrets. You set them in
+the GUI's **Connect panel** (the same list `opencode /connect` and `pi /login`
+would show you, without the TUI): paste an API key, or sign in with OAuth —
+device-code for GitHub Copilot, browser paste-back for Anthropic and
+OpenRouter.
+
+They are stored in the **AuthVault Durable Object**, projected per harness —
+each adapter gets the credential shape it actually reads — and injected into
+the sandbox at run time: `OPENCODE_AUTH_CONTENT` for OpenCode,
+`~/.pi/agent/auth.json` for Pi. Never baked into the image, never written into
+a snapshot, and never returned to the browser once stored — the API hands back
+a last-four hint, not the secret.
 
 ---
 

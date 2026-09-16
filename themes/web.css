@@ -307,7 +307,7 @@
   --diff-pending-bg: #101A33;
 }
 
-/* Forge Red — Danger and --yolo only. Never full-time. */
+/* Forge Red — Danger only. Never full-time. */
 [data-theme="forge-red"] {
   --background: #0A0505;
   --foreground: #F5E0DC;
