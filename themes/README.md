@@ -34,7 +34,7 @@ count.
 | Milo Light | light | original, still shipped |
 | Ion Purple | dark | alternate |
 | Halo Ring | dark | alternate. Ring closes on sleep, opens on wake. |
-| Forge Red | dark | **danger and `--yolo` only.** The GUI gates selection behind a confirmation. |
+| Forge Red | dark | **danger only.** The GUI gates selection behind a confirmation. |
 
 ## Installing
 
@@ -45,13 +45,6 @@ milo themes --report  # also check COLORTERM
 
 Or by hand: copy `pi/<id>.json` into `~/.pi/agent/themes/`, and
 `opencode/*.json` into `.opencode/themes/`.
-
-## Command Code
-
-`cmd` has **no custom theme JSON**. It takes exactly three values — `dark`,
-`light`, and `auto` (which follows the terminal background via OSC-11). Milo maps
-its seven themes onto those three and says so, rather than writing a file `cmd`
-will ignore. The mapping is in `bundle.json` under `commandCode`.
 
 ## Truecolor
 

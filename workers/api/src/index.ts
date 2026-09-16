@@ -4,6 +4,7 @@
  * Exports, in one place, everything wrangler needs to find:
  *   MiloSession   — one Durable Object per agent session
  *   ContainerGate — the single-lease queue in front of max_instances: 1
+ *   AuthVault     — the provider-credential store behind the Connect panel
  *   Sandbox       — the container-backed Sandbox subclass
  *
  * On credentials, and a correction worth stating
@@ -27,10 +28,12 @@
  *      Run `milo push` locally with your own git credentials, or upgrade to the
  *      preview and use `outboundByHost`. See README.md > Secrets.
  *
- * Model-provider keys are the one exception, and they are unavoidable: the
- * harness inside the sandbox has to call the model. They are set per session
- * with `setEnvVars` and are scoped to that session's container. The GitHub token
- * is never among them.
+ * Model-provider credentials are the one exception, and they are unavoidable:
+ * the harness inside the sandbox has to call the model. They are the user's
+ * own keys and OAuth tokens, stored in the AuthVault Durable Object (not in
+ * wrangler vars), and injected per session by `src/auth/inject.ts` — as
+ * `OPENCODE_AUTH_CONTENT` for OpenCode and `~/.pi/agent/auth.json` for Pi.
+ * The GitHub token is never among them.
  */
 
 import { routeAgentRequest } from "agents";
@@ -38,17 +41,24 @@ import { Sandbox } from "@cloudflare/sandbox";
 
 import { MiloSession } from "./agent/milo-session.ts";
 import { ContainerGate } from "./gate/container-gate.ts";
+import { AuthVault } from "./auth/vault.ts";
+import { isAuthorized } from "./auth/guard.ts";
 import { handleApi } from "./routes/api.ts";
 import { writeSnapshot } from "./agent/snapshot.ts";
 import type { Env } from "./env.ts";
 
-export { MiloSession, ContainerGate, Sandbox };
+export { MiloSession, ContainerGate, AuthVault, Sandbox };
 
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
 
-    // The Agents SDK owns /agents/*. Everything else is the Milo API.
+    // The Agents SDK owns /agents/*. Those routes reach session RPC —
+    // launch, run, exec — so when MILO_ADMIN_TOKEN is configured they sit
+    // behind the same bearer as the vault, or the gate would be decoration.
+    if (url.pathname.startsWith("/agents/") && env.MILO_ADMIN_TOKEN && !isAuthorized(request, env)) {
+      return new Response("unauthorized", { status: 401 });
+    }
     const agentResponse = await routeAgentRequest(request, env);
     if (agentResponse) return agentResponse;
 
@@ -61,7 +71,7 @@ export default {
         name: "milo",
         tagline: "the friend that minds your agents",
         docs: "https://github.com/kartikkabadi/milo",
-        endpoints: ["/api/sessions", "/api/cost/model", "/api/themes", "/api/harnesses", "/api/health"],
+        endpoints: ["/api/sessions", "/api/auth/providers", "/api/cost/model", "/api/themes", "/api/harnesses", "/api/health"],
       });
     }
 

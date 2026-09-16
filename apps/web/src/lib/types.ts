@@ -1,6 +1,6 @@
 /** Shared types. Mirrors workers/api/src/env.ts. Kept narrow on purpose. */
 
-export type HarnessId = "pi" | "opencode" | "command-code";
+export type HarnessId = "pi" | "opencode";
 export type Tier = 0 | 1 | 2 | 3;
 export type PermissionDecision = "allow" | "ask" | "deny";
 
@@ -77,13 +77,26 @@ export const HARNESSES: { id: HarnessId; label: string; tiers: string; note: str
     tiers: "0 · 1 · 3",
     note: "Plan, Explore, and Scout are read-only and stay in Tiers 0–1. Build is Tier 3 only.",
   },
-  {
-    id: "command-code",
-    label: "Command Code",
-    tiers: "0 · 1 · 3",
-    note: "Without --yolo it is read-only and stays in Tiers 0–1. --yolo is Tier 3, behind an approval.",
-  },
 ];
+
+/** One row of the Connect panel. Mirrors AuthVault's ProviderStatus. */
+export interface ProviderInfo {
+  id: string;
+  label: string;
+  apiKey: { hint: string } | null;
+  oauth: { flow: "device" | "code"; harnesses: HarnessId[]; label: string } | null;
+  connected: boolean;
+  kind?: "api" | "oauth";
+  /** Last four characters of the stored credential. Never the secret. */
+  hint?: string;
+  /** Which harnesses the stored credential feeds. */
+  feeds?: HarnessId[];
+}
+
+export type OAuthDisplay = { flowId: string } & (
+  | { kind: "device"; userCode: string; verificationUri: string; interval: number; expiresIn: number }
+  | { kind: "code"; url: string; instructions: string }
+);
 
 export const MODELS = [
   { id: "anthropic/claude-sonnet-4-6", label: "Sonnet 4.6", tier: "standard" as const },

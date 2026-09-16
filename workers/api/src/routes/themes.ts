@@ -78,7 +78,7 @@ export const THEMES: ThemeMeta[] = [
     id: "forge-red",
     label: "Forge Red",
     mode: "dark",
-    blurb: "Danger and --yolo only. Never full-time.",
+    blurb: "Danger only. Never full-time.",
     defaultFor: null,
     danger: true,
     swatch: { bg: "#0A0505", accent: "#EF4444", text: "#F5E0DC" },

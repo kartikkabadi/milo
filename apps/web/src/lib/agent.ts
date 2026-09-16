@@ -17,6 +17,7 @@
 
 import { useAgent } from "agents/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { adminToken, onAdminTokenChange } from "./admin";
 import type { ApprovalRequest, GitTimelineEntry, HarnessId, MiloState, Tier } from "./types";
 
 export interface CostSummary {
@@ -69,7 +70,7 @@ export type TranscriptEvent =
  * untyped hop in a single place instead of scattering `as` through the hooks.
  */
 interface SessionRpc {
-  run(tier: Tier, prompt: string, opts?: { yoloApproved?: boolean }): Promise<{ output: string }>;
+  run(tier: Tier, prompt: string): Promise<{ output: string }>;
   launch(opts: { harness: HarnessId; repo: string; model?: string }): Promise<{ log: string[] }>;
   sleep(reason?: string): Promise<{ sha: string | null; log: string[] }>;
   wake(opts: { repoUrl?: string }): Promise<{ sha: string | null; log: string[] }>;
@@ -93,7 +94,7 @@ export interface SessionApi {
   indices: IdiotIndex[];
   worst: IdiotIndex[];
   gate: { heldBy: string | null; expiresAt: number; queue: { sessionId: string; position: number }[] } | null;
-  send: (tier: Tier, prompt: string, opts?: { yoloApproved?: boolean }) => Promise<void>;
+  send: (tier: Tier, prompt: string) => Promise<void>;
   resolve: (id: string, decision: "allow" | "deny") => Promise<void>;
   sleep: () => Promise<void>;
   wake: () => Promise<void>;
@@ -130,6 +131,12 @@ export function useMiloSession(sessionId: string, agentHost = ""): SessionApi {
   const stateRef = useRef<MiloState | null>(null);
   stateRef.current = state;
 
+  // The admin token can arrive after mount (typed into Connect). Track it as
+  // state so queryDeps below re-resolves the socket query — otherwise the
+  // agent would stay offline on the empty cached query until a reload.
+  const [token, setToken] = useState(adminToken);
+  useEffect(() => onAdminTokenChange(() => setToken(adminToken())), []);
+
   // Streaming buffers are refs, not state: a delta per token would re-render
   // the whole transcript hundreds of times per turn.
   const textBuf = useRef("");
@@ -140,6 +147,13 @@ export function useMiloSession(sessionId: string, agentHost = ""): SessionApi {
     agent: "MiloSession",
     name: sessionId,
     host: agentHost || undefined,
+    // A WebSocket handshake cannot set headers, so the admin token goes as a
+    // query param; the Worker checks it on the /agents/ upgrade route.
+    query: async (): Promise<Record<string, string | null>> => {
+      const token = adminToken();
+      return token ? { token } : {};
+    },
+    queryDeps: [token],
     onOpen: () => {
       setConnected(true);
       setError(null);
@@ -241,10 +255,10 @@ export function useMiloSession(sessionId: string, agentHost = ""): SessionApi {
   }, [state?.tier, push]);
 
   const send = useCallback(
-    async (tier: Tier, prompt: string, opts: { yoloApproved?: boolean } = {}) => {
+    async (tier: Tier, prompt: string) => {
       push({ kind: "prompt", id: nextId(), ts: Date.now(), tier, text: prompt });
       try {
-        const result = await rpc.run(tier, prompt, opts);
+        const result = await rpc.run(tier, prompt);
         if (result?.output) push({ kind: "text", id: nextId(), ts: Date.now(), tier, text: result.output });
       } catch (err) {
         setError(String(err instanceof Error ? err.message : err));

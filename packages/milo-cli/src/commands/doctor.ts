@@ -53,22 +53,21 @@ export async function doctor(args: string[]): Promise<number> {
   checks.push({
     name: "node",
     level: major >= 22 ? "ok" : major >= 20 ? "warn" : "fail",
-    detail: `${node}${major < 22 ? " (Command Code requires 22 or newer)" : ""}`,
-    fix: major < 22 ? "Upgrade Node. Command Code refuses to start on 20 or below." : undefined,
+    detail: node,
+    fix: major < 20 ? "Upgrade Node. The CLI and the sandbox toolchain want 20 or newer; 22 is what the image ships." : undefined,
   });
 
   /* Harnesses */
   for (const [bin, label, required] of [
     ["pi", "Pi", false],
     ["opencode", "OpenCode", false],
-    ["cmd", "Command Code", false],
   ] as const) {
     const version = await has(bin);
     checks.push({
       name: label,
       level: version ? "ok" : required ? "fail" : "warn",
       detail: version ?? "not installed",
-      fix: version ? undefined : `bun i -g ${bin === "pi" ? "@earendil-works/pi-coding-agent" : bin === "opencode" ? "opencode-ai" : "command-code@latest"}`,
+      fix: version ? undefined : `bun i -g ${bin === "pi" ? "@earendil-works/pi-coding-agent" : "opencode-ai"}`,
     });
   }
 

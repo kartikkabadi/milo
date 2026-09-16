@@ -89,7 +89,7 @@ export async function watch(args: string[]): Promise<number> {
 
   // Rules files, if present. Reported, not enforced — enforcement is the
   // Worker's job, and a CLI that pretends to enforce is a CLI that lies.
-  for (const file of ["taste.md", "milo.yaml", ".commandcode/taste/taste.md"]) {
+  for (const file of ["taste.md", "milo.yaml"]) {
     try {
       await readFile(`${root}/${file}`, "utf8");
       process.stdout.write(`${c.green("  rules")} ${file}\n`);

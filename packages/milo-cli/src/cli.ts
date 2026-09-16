@@ -34,7 +34,7 @@ usage: milo <command> [options]
   sleep [session]    snapshot to git and release the container now
   wake [session]     restore from the last snapshot
   cost               print the cost model, with sources
-  themes             install all seven themes for Pi, OpenCode, and Command Code
+  themes             install all seven themes for Pi and OpenCode
   pull               adopt the watch rules a teammate pushed
   push               publish your watch rules
   doctor             check the environment

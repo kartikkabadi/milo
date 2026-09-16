@@ -1,5 +1,32 @@
 # Changelog
 
+## Unreleased
+
+### Provider auth in the GUI
+
+- **Connect panel.** The provider list `opencode /connect` and `pi /login`
+  show in a TUI now lives in the app's left rail. API keys paste in; OAuth
+  signs in without a terminal — device code for GitHub Copilot, browser
+  paste-back for Anthropic (Claude Pro/Max) and OpenRouter.
+- **AuthVault Durable Object** (`src/auth/`). Credentials are stored
+  canonical-and-projected: each entry carries the shape each harness actually
+  reads, because Pi and OpenCode do not store OAuth identically (Copilot is
+  the proof — Pi keeps the exchanged Copilot token, OpenCode keeps the GitHub
+  token).
+- **Injection at run time, scoped to the session's container.** OpenCode gets
+  `OPENCODE_AUTH_CONTENT` plus `~/.local/share/opencode/auth.json`; Pi gets
+  `~/.pi/agent/auth.json`. Written on every Tier-3 run, wake, and launch —
+  the container's home directory is ephemeral, so "already written" is not a
+  durable fact.
+- The browser never sees a stored credential. The API returns provider
+  metadata, OAuth display instructions, and a last-four hint.
+
+### Removed
+
+- **Command Code is gone** — adapter, image install, doctor check, theme
+  mapping, `--yolo` gating, and the GUI entry. Two harnesses now: Pi and
+  OpenCode.
+
 ## 0.1.0
 
 First cut. Everything below shipped at once, so this is a description rather

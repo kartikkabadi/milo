@@ -1,7 +1,7 @@
 import type { Sandbox } from "@cloudflare/sandbox";
 
-/** Which harness is driving a session. Three separate tools. Do not conflate. */
-export type HarnessId = "pi" | "opencode" | "command-code";
+/** Which harness is driving a session. Two separate tools. Do not conflate. */
+export type HarnessId = "pi" | "opencode";
 
 /**
  * The execution ladder. Lower tiers cannot boot a container — that is enforced
@@ -38,7 +38,7 @@ export interface ApprovalRequest {
   summary: string;
   /** The raw command or patch, for the diff viewer. */
   payload: string;
-  /** True when this is a destructive or --yolo class action. */
+  /** True when this is a destructive-class action. */
   dangerous: boolean;
   createdAt: number;
   resolvedAt?: number;
@@ -166,16 +166,24 @@ export const initialState: MiloState = {
  */
 import type { MiloSession } from "./agent/milo-session.ts";
 import type { ContainerGate } from "./gate/container-gate.ts";
+import type { AuthVault } from "./auth/vault.ts";
 
 export interface Env {
   MILO_SESSION: DurableObjectNamespace<MiloSession>;
   CONTAINER_GATE: DurableObjectNamespace<ContainerGate>;
+  MILO_AUTH: DurableObjectNamespace<AuthVault>;
   Sandbox: DurableObjectNamespace<Sandbox>;
   SNAPSHOTS: R2Bucket;
   AI: Ai;
   MILO_ENV: string;
   MILO_TIER3_DUTY_TARGET: string;
   MILO_MAX_TIER3_MS_PER_WAKE: string;
+  /**
+   * Bearer for /api/auth/* and /agents/* routes. Set via `wrangler secret
+   * put MILO_ADMIN_TOKEN` (or `.dev.vars` locally). Unset does not mean
+   * open — the vault routes return 503 until a token exists.
+   */
+  MILO_ADMIN_TOKEN?: string;
   /** Set by the outbound handler, never exposed to the sandbox. */
   GITHUB_TOKEN?: string;
   AI_GATEWAY_TOKEN?: string;

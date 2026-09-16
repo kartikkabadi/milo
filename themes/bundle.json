@@ -1700,35 +1700,5 @@
         "light": "l_punctuation"
       }
     }
-  },
-  "commandCode": {
-    "hellas-marble": {
-      "theme": "light",
-      "note": "Hellas Marble is a light theme, so Command Code gets `--theme light`. Milo ships no custom JSON for cmd."
-    },
-    "spartan-night": {
-      "theme": "dark",
-      "note": "Spartan Night is a dark theme, so Command Code gets `--theme dark`. Dark is designed here, not inverted."
-    },
-    "milo-dark": {
-      "theme": "dark",
-      "note": "Milo Dark is a dark theme, so Command Code gets `--theme dark`. Dark is designed here, not inverted."
-    },
-    "milo-light": {
-      "theme": "light",
-      "note": "Milo Light is a light theme, so Command Code gets `--theme light`. Milo ships no custom JSON for cmd."
-    },
-    "ion-purple": {
-      "theme": "dark",
-      "note": "Ion Purple is a dark theme, so Command Code gets `--theme dark`. Dark is designed here, not inverted."
-    },
-    "halo-ring": {
-      "theme": "dark",
-      "note": "Halo Ring is a dark theme, so Command Code gets `--theme dark`. Dark is designed here, not inverted."
-    },
-    "forge-red": {
-      "theme": "dark",
-      "note": "Forge Red is a dark theme, so Command Code gets `--theme dark`. Dark is designed here, not inverted."
-    }
   }
 }

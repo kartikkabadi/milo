@@ -18,6 +18,7 @@ import { TerminalPanel } from "../components/TerminalPanel";
 import { DiffViewer } from "../components/DiffViewer";
 import { CostLedger } from "../components/CostLedger";
 import { Approvals } from "../components/Approvals";
+import { Connect } from "../components/Connect";
 import { GitTimeline } from "../components/GitTimeline";
 import { Transcript } from "../components/Transcript";
 import { HARNESSES, MODELS, TIERS, type HarnessId, type Tier } from "../lib/types";
@@ -88,7 +89,6 @@ export function AppView({ sessionId }: { sessionId: string }) {
   const [model, setModel] = useState(MODELS[0].id);
   const [draft, setDraft] = useState("");
   const [tier, setTier] = useState<Tier>(0);
-  const [yolo, setYolo] = useState(false);
 
   const session = useMiloSession(sessionId);
   const state = session.state;
@@ -103,7 +103,7 @@ export function AppView({ sessionId }: { sessionId: string }) {
     const text = draft.trim();
     if (!text) return;
     setDraft("");
-    await session.send(tier, text, { yoloApproved: yolo });
+    await session.send(tier, text);
   };
 
   return (
@@ -214,6 +214,8 @@ export function AppView({ sessionId }: { sessionId: string }) {
             </div>
           </div>
 
+          <Connect />
+
           <div className="mt-auto">
             <Meander />
             <p className="mt-2 text-[10px]" style={{ color: "var(--dim)" }}>
@@ -287,10 +289,9 @@ export function AppView({ sessionId }: { sessionId: string }) {
                 </button>
               ))}
               {tier === 3 && (
-                <label className="ml-2 flex items-center gap-1.5 text-[10px]" style={{ color: yolo ? "var(--danger)" : "var(--muted)" }}>
-                  <input type="checkbox" checked={yolo} onChange={(e) => setYolo(e.target.checked)} />
-                  --yolo (needs an approval)
-                </label>
+                <span className="ml-2 text-[10px]" style={{ color: "var(--warn)" }}>
+                  leases the container
+                </span>
               )}
             </div>
             <div className="flex items-end gap-2">

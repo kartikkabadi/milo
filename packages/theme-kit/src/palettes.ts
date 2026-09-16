@@ -366,15 +366,15 @@ export const palettes: Record<ThemeId, Palette> = {
   },
 
   /* ------------------------------------------------------------------ *
-   * Forge Red — danger / --yolo only. Never full-time.
-   * Reserved for destructive actions, bypassed approvals, and yolo runs.
+   * Forge Red — danger only. Never full-time.
+   * Reserved for destructive actions and bypassed approvals.
    * The GUI requires an explicit confirm before selecting it.
    * ------------------------------------------------------------------ */
   "forge-red": {
     id: "forge-red",
     label: "Forge Red",
     mode: "dark",
-    blurb: "Danger and --yolo only. Never full-time.",
+    blurb: "Danger only. Never full-time.",
     isDanger: true,
     bg: "#0A0505",
     surface: "#1A0C0C",

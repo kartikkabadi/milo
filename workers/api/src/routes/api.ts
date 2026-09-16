@@ -6,6 +6,8 @@
 
 import type { Env, HarnessId, Tier } from "../env.ts";
 import { getHarness, HARNESSES } from "../harness/index.ts";
+import { vaultStub } from "../auth/inject.ts";
+import { isAuthorized } from "../auth/guard.ts";
 import { THEMES } from "./themes.ts";
 import { includedContainerHours, priceScenario } from "../cost/model.ts";
 import { INSTANCE_TYPES } from "../cost/rates.ts";
@@ -50,15 +52,87 @@ export async function handleApi(request: Request, env: Env, _ctx: ExecutionConte
         note:
           h.id === "pi"
             ? "Runs in every tier. The only harness that can genuinely work without a filesystem."
-            : h.id === "opencode"
-              ? "Plan/Explore/Scout are read-only and stay in Tiers 0-1. Build is Tier 3 only."
-              : "Without --yolo it is read-only and stays in Tiers 0-1. --yolo is Tier 3 only, behind an approval.",
+            : "Plan/Explore/Scout are read-only and stay in Tiers 0-1. Build is Tier 3 only.",
       })),
     });
   }
 
   if (path === "/themes" && method === "GET") {
     return json({ themes: THEMES });
+  }
+
+  /* ---------------------------------------------------------------- *
+   * Provider auth — the GUI's Connect panel
+   *
+   * Secrets only ever travel browser -> Worker -> vault/sandbox. The
+   * browser-facing surface returns provider metadata, OAuth display
+   * instructions, and last-four hints — never a credential value.
+   *
+   * These routes mutate the vault, so they are the one part of the API
+   * behind a gate — and the gate is not optional: with no MILO_ADMIN_TOKEN
+   * configured the vault is locked rather than open. To run without one,
+   * set a token locally via `.dev.vars` and paste it into Connect.
+   * ---------------------------------------------------------------- */
+
+  if (path.startsWith("/auth")) {
+    if (!env.MILO_ADMIN_TOKEN) {
+      return bad(
+        "vault is locked — set the MILO_ADMIN_TOKEN secret and paste it into Connect",
+        503,
+      );
+    }
+    if (!isAuthorized(request, env)) return bad("unauthorized", 401);
+  }
+
+  if (path === "/auth/providers" && method === "GET") {
+    return json({ providers: await vaultStub(env).list() });
+  }
+
+  const providerMatch = /^\/auth\/providers\/([A-Za-z0-9_-]{1,64})$/.exec(path);
+  if (providerMatch) {
+    const id = providerMatch[1];
+    const vault = vaultStub(env);
+    if (method === "PUT") {
+      const body = (await request.json().catch(() => ({}))) as { key?: string };
+      if (!body.key) return bad("key is required");
+      const res = await vault.setApiKey(id, body.key);
+      return res.ok ? json(res) : bad(`${id} does not take an API key, or the key was rejected`, 422);
+    }
+    if (method === "DELETE") {
+      return json(await vault.remove(id));
+    }
+    return bad("method not allowed", 405);
+  }
+
+  if (path === "/auth/oauth/start" && method === "POST") {
+    const body = (await request.json().catch(() => ({}))) as { provider?: string };
+    if (!body.provider) return bad("provider is required");
+    try {
+      return json(await vaultStub(env).oauthStart(body.provider));
+    } catch (err) {
+      return bad(err instanceof Error ? err.message : String(err));
+    }
+  }
+
+  if (path === "/auth/oauth/finish" && method === "POST") {
+    const body = (await request.json().catch(() => ({}))) as
+      { provider?: string; flowId?: string; input?: string };
+    if (!body.provider) return bad("provider is required");
+    if (!body.flowId) return bad("flowId is required — the id oauth/start returned");
+    if (!body.input) return bad("input is required — the pasted redirect URL or code");
+    try {
+      return json(await vaultStub(env).oauthFinish(body.provider, body.flowId, body.input));
+    } catch (err) {
+      return bad(err instanceof Error ? err.message : String(err));
+    }
+  }
+
+  if (path === "/auth/oauth/status" && method === "GET") {
+    const provider = url.searchParams.get("provider");
+    const flowId = url.searchParams.get("flowId");
+    if (!provider) return bad("provider is required");
+    if (!flowId) return bad("flowId is required");
+    return json(await vaultStub(env).oauthPoll(provider, flowId));
   }
 
   /* ---------------------------------------------------------------- *
@@ -155,13 +229,13 @@ export async function handleApi(request: Request, env: Env, _ctx: ExecutionConte
     }
 
     if (rest === "/run" && method === "POST") {
-      const body = (await request.json()) as { tier?: number; prompt?: string; yoloApproved?: boolean };
+      const body = (await request.json()) as { tier?: number; prompt?: string };
       if (typeof body.tier !== "number" || ![0, 1, 2, 3].includes(body.tier)) {
         return bad("tier must be 0, 1, 2, or 3");
       }
       if (!body.prompt) return bad("prompt is required");
       try {
-        return json(await stub.run(body.tier as Tier, body.prompt, { yoloApproved: body.yoloApproved }));
+        return json(await stub.run(body.tier as Tier, body.prompt));
       } catch (err) {
         return bad(String(err), 409);
       }

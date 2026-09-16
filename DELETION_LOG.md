@@ -22,7 +22,8 @@ that only lists deletions is a log that is hiding the add-backs.
 | **A router dependency** | Two pages and one path segment. | A 20-line `parseRoute` |
 | **A CLI framework** | `milo` needs `argv`, `fetch`, and `fs`. A framework would be larger than the CLI. | `process.argv` |
 | **A config-file format of our own** | `taste.md` and `milo.yaml` are the two files. A third format would be a third thing to document. | YAML + Markdown |
-| **Command Code theme JSON** | `cmd` has exactly three theme values and no custom JSON. Writing a file it ignores would be a lie in the repo. | A documented mapping onto `dark` / `light` / `auto` |
+| **Command Code theme JSON** | `cmd` has exactly three theme values and no custom JSON. Writing a file it ignores would be a lie in the repo. | A documented mapping onto `dark` / `light` / `auto` — later deleted with the harness itself, below |
+| **Command Code, the harness** | User call: not good. Its auth is API-key-or-OAuth like the others, but the adapter carried `--yolo` gating that duplicated what the tier ladder and approvals already do, and it was the only harness that needed Node 22 while contributing the least. Two harnesses is a better product than three where one is disliked. | Nothing — Pi and OpenCode cover the surface |
 | **Landing-page testimonials** | Three invented quotes would have been easy. They cost more than a missing section. | Three reserved, visibly empty slots |
 
 ---
@@ -60,9 +61,9 @@ These survived review. Each one is a deliberate exception.
 
 ## The count
 
-- **Deleted outright:** 11 things
+- **Deleted outright:** 12 things
 - **Deleted then added back:** 7 things
-- **Add-back rate:** 39%
+- **Add-back rate:** 37%
 
 The 10% test says that is too low, which means **there is still something in this
 repo that should not exist.** The most likely candidate is the `idiot-index`
