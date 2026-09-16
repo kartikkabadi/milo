@@ -2,7 +2,7 @@
 /**
  * milo — the CLI.
  *
- * No dependencies on purpose. `npm i -g milo` should finish in under a second,
+ * No dependencies on purpose. A global `milo` install should finish in under a second,
  * because the first thing a user does with a tool that is about cost efficiency
  * is notice how long it took to install.
  *

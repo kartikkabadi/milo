@@ -5,11 +5,11 @@
 run:
 
 ```sh
-npm run themes
-npm run check
+bun run themes
+bun run check
 ```
 
-`npm run check` fails if anything drifted — the generated bundle, the Worker's
+`bun run check` fails if anything drifted — the generated bundle, the Worker's
 theme metadata, the inline bootstrap script in `index.html`, or the Pi token
 count.
 

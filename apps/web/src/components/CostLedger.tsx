@@ -6,7 +6,7 @@
  * shows the arithmetic for each. The dollar figure is the last row, not the
  * first.
  *
- * Every number here comes from the same functions that `npm run cost` uses on
+ * Every number here comes from the same functions that `bun run cost` uses on
  * the server, so the panel cannot disagree with COST_MODEL.md.
  */
 

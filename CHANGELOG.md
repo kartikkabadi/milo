@@ -29,12 +29,12 @@ than a diff.
 
 ### Cost
 
-- `COST_MODEL.md`, reproduced by `npm run cost`.
+- `COST_MODEL.md`, reproduced by `bun run cost`.
 - The idiot index, with the three worst surfaced in the GUI. A cost panel that
   only shows a total hides exactly the thing you need to see.
-- `npm run loadtest` — a discrete-event simulation of ten agents at 30/30/20/20
+- `bun run loadtest` — a discrete-event simulation of ten agents at 30/30/20/20
   with a real lease queue.
-- `npm run check` — parity between the Worker's cost model and the CLI's, plus
+- `bun run check` — parity between the Worker's cost model and the CLI's, plus
   theme drift.
 
 ### Two findings the load test produced, both fixed
@@ -64,7 +64,7 @@ than a diff.
   combined `milo-greek`), xterm `ITheme`, and web CSS variables.
 - Command Code gets no theme files, because `cmd` has no custom theme JSON.
 - No flash of the wrong theme: the theme is resolved inline before first paint,
-  and `npm run check` fails if the bootstrap drifts from the palette.
+  and `bun run check` fails if the bootstrap drifts from the palette.
 
 ### Brand
 
@@ -78,7 +78,8 @@ than a diff.
 
 ### CLI
 
-- `npm i -g milo`, no dependencies, installs in under a second.
+- The `milo` CLI: no dependencies, runs from source via `bun run milo`. A
+  registry package is planned but not published yet — the README says so.
 - `watch`, `status`, `sleep`, `wake`, `cost`, `themes`, `pull`, `push`, `doctor`.
 - `milo cost` works with no API and no clone, which is why it duplicates the
   arithmetic — and why the duplication is verified.
@@ -86,7 +87,7 @@ than a diff.
 ### Known gaps
 
 - The web GUI has not been exercised against a live deployed Worker in this
-  repo. `npm run dev:api` and `npm run dev:web` are wired but untested end to
+  repo. `bun run dev:api` and `bun run dev:web` are wired but untested end to
   end.
 - `packages/sandbox-image/Dockerfile` has not been built. The three harness
   install commands are taken from their official docs, not verified by a build.

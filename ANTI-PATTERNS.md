@@ -182,7 +182,7 @@ budget against it.
 
 **The fix.** Every rate lives in `workers/api/src/cost/rates.ts` with the URL it
 came from and the date it was read. Two implementations exist (Worker and CLI)
-and `npm run check` verifies they agree.
+and `bun run check` verifies they agree.
 
 **The tell.** A number with six decimal places and no comment.
 

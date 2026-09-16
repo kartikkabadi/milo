@@ -2,7 +2,7 @@
 /**
  * Load test: 10 agents, 30/30/20/20 think/read/edit/test.
  *
- * Run from the repo root:  npm run loadtest
+ * Run from the repo root:  bun run loadtest
  *
  * This is a discrete-event simulation, not a throughput benchmark, and that is
  * the right tool for the question. The question is not "how many requests per

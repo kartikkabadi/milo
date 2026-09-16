@@ -25,7 +25,7 @@ export async function api<T>(path: string, init?: RequestInit): Promise<T> {
     });
   } catch (err) {
     throw new Error(
-      `could not reach the Milo API at ${apiBase()}. Start it with \`npm run dev:api\` in the repo, or set MILO_API.\n  ${String(err)}`,
+      `could not reach the Milo API at ${apiBase()}. Start it with \`bun run dev:api\` in the repo, or set MILO_API.\n  ${String(err)}`,
     );
   }
   if (!res.ok) {

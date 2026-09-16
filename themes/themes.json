@@ -1,6 +1,6 @@
 {
   "generated": "packages/theme-kit/src/palettes.ts",
-  "note": "Do not hand-edit any file under themes/. Edit the palette source and run `npm run themes`.",
+  "note": "Do not hand-edit any file under themes/. Edit the palette source and run `bun run themes`.",
   "themes": [
     {
       "id": "hellas-marble",

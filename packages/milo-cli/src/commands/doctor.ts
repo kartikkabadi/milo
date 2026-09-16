@@ -68,7 +68,7 @@ export async function doctor(args: string[]): Promise<number> {
       name: label,
       level: version ? "ok" : required ? "fail" : "warn",
       detail: version ?? "not installed",
-      fix: version ? undefined : `npm i -g ${bin === "pi" ? "@earendil-works/pi-coding-agent" : bin === "opencode" ? "opencode-ai" : "command-code@latest"}`,
+      fix: version ? undefined : `bun i -g ${bin === "pi" ? "@earendil-works/pi-coding-agent" : bin === "opencode" ? "opencode-ai" : "command-code@latest"}`,
     });
   }
 
@@ -105,7 +105,7 @@ export async function doctor(args: string[]): Promise<number> {
   /* The API */
   let apiLevel: Level = "warn";
   let apiDetail = `unreachable at ${apiBase()}`;
-  let apiFix: string | undefined = "Start it with `npm run dev:api`, or set MILO_API to a deployed Worker.";
+  let apiFix: string | undefined = "Start it with `bun run dev:api`, or set MILO_API to a deployed Worker.";
   try {
     const res = await fetch(`${apiBase()}/api/health`, { signal: AbortSignal.timeout(2500) });
     if (res.ok) {
