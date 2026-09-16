@@ -42,6 +42,7 @@ import { Sandbox } from "@cloudflare/sandbox";
 import { MiloSession } from "./agent/milo-session.ts";
 import { ContainerGate } from "./gate/container-gate.ts";
 import { AuthVault } from "./auth/vault.ts";
+import { isAuthorized } from "./auth/guard.ts";
 import { handleApi } from "./routes/api.ts";
 import { writeSnapshot } from "./agent/snapshot.ts";
 import type { Env } from "./env.ts";
@@ -52,7 +53,12 @@ export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
 
-    // The Agents SDK owns /agents/*. Everything else is the Milo API.
+    // The Agents SDK owns /agents/*. Those routes reach session RPC —
+    // launch, run, exec — so when MILO_ADMIN_TOKEN is configured they sit
+    // behind the same bearer as the vault, or the gate would be decoration.
+    if (url.pathname.startsWith("/agents/") && env.MILO_ADMIN_TOKEN && !isAuthorized(request, env)) {
+      return new Response("unauthorized", { status: 401 });
+    }
     const agentResponse = await routeAgentRequest(request, env);
     if (agentResponse) return agentResponse;
 

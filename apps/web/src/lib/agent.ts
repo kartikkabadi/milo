@@ -17,6 +17,7 @@
 
 import { useAgent } from "agents/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { adminToken } from "./admin";
 import type { ApprovalRequest, GitTimelineEntry, HarnessId, MiloState, Tier } from "./types";
 
 export interface CostSummary {
@@ -140,6 +141,12 @@ export function useMiloSession(sessionId: string, agentHost = ""): SessionApi {
     agent: "MiloSession",
     name: sessionId,
     host: agentHost || undefined,
+    // A WebSocket handshake cannot set headers, so the admin token goes as a
+    // query param; the Worker checks it on the /agents/ upgrade route.
+    query: async (): Promise<Record<string, string | null>> => {
+      const token = adminToken();
+      return token ? { token } : {};
+    },
     onOpen: () => {
       setConnected(true);
       setError(null);

@@ -139,6 +139,11 @@ export class AuthVault extends DurableObject<Env> {
   async oauthStart(id: string): Promise<OAuthDisplay & { flowId: string }> {
     const spec = providerSpec(id);
     if (!spec?.oauth) throw new Error(`${id} has no oauth flow`);
+    // Dead flows never see another request to settle them, so sweep them on
+    // every start — otherwise abandoned sign-ins grow the DO store forever.
+    const flows = await this.ctx.storage.list<PendingOAuth>({ prefix: "oauth:flow:" });
+    const doomed = [...flows.keys()].filter((k) => (flows.get(k)?.deadline ?? 0) < Date.now());
+    if (doomed.length) await this.ctx.storage.delete(doomed);
     const { pending, display } = await oauthStart(id);
     const flowId = crypto.randomUUID();
     await this.ctx.storage.put(`oauth:flow:${flowId}`, pending);

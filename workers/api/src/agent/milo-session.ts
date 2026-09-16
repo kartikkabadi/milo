@@ -289,8 +289,14 @@ export class MiloSession extends Agent<Env, MiloState> {
     if (this.state.harness) {
       try {
         await injectHarnessAuth(this.env, sandbox, this.state.harness);
-      } catch {
+      } catch (err) {
         // Auth is recoverable on the next run; a wake must not fail for it.
+        // But a silent failure leaves an interactive terminal unauthenticated
+        // with no sign of why — put it in state so the GUI can show it.
+        this.setState({
+          ...this.state,
+          lastError: `auth re-inject failed: ${err instanceof Error ? err.message : String(err)}`,
+        });
       }
     }
 
@@ -349,6 +355,11 @@ export class MiloSession extends Agent<Env, MiloState> {
     // Provider credentials ride along with the launch so an interactive
     // `pi`/`opencode` in the terminal tab is authenticated too, not only the
     // headless runs. A vault outage must not wedge a launch.
+    //
+    // This write is outside the container lease, and that is safe: the lease
+    // serializes *runtime* on the single box, while `sandbox()` names this
+    // session's own Sandbox DO — its filesystem is per-session, so no other
+    // session can read or race this file.
     const sandbox = this.sandbox();
     if (sandbox) {
       try {

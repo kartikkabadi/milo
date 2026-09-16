@@ -19,17 +19,8 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { adminToken, setAdminToken } from "../lib/admin";
 import type { OAuthDisplay, ProviderInfo } from "../lib/types";
-
-const ADMIN_TOKEN_KEY = "milo.adminToken";
-
-function adminToken(): string {
-  try {
-    return localStorage.getItem(ADMIN_TOKEN_KEY) ?? "";
-  } catch {
-    return "";
-  }
-}
 
 async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const token = adminToken();
@@ -43,7 +34,9 @@ async function api<T>(path: string, init?: RequestInit): Promise<T> {
   });
   const body = (await res.json().catch(() => ({}))) as T & { error?: string };
   if (!res.ok) {
-    throw new Error(res.status === 401 ? "unauthorized — set the admin token below" : body.error ?? `request failed (${res.status})`);
+    if (res.status === 401) throw new Error("unauthorized — check the admin token below");
+    if (res.status === 503) throw new Error(body.error ?? "vault locked — MILO_ADMIN_TOKEN is not set on the Worker");
+    throw new Error(body.error ?? `request failed (${res.status})`);
   }
   return body;
 }
@@ -361,15 +354,10 @@ export function Connect() {
         value={token}
         onChange={(e) => {
           setToken(e.target.value);
-          try {
-            if (e.target.value) localStorage.setItem(ADMIN_TOKEN_KEY, e.target.value);
-            else localStorage.removeItem(ADMIN_TOKEN_KEY);
-          } catch {
-            /* private mode — the field still works for this page load */
-          }
+          setAdminToken(e.target.value);
         }}
         onBlur={() => void refresh()}
-        placeholder="admin token (only if MILO_ADMIN_TOKEN is set)"
+        placeholder="admin token (MILO_ADMIN_TOKEN)"
         autoComplete="off"
         className="mt-2 w-full rounded border bg-transparent px-2 py-1 text-[10px] outline-none"
         style={{ borderColor: "var(--border)", color: "var(--muted)" }}

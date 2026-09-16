@@ -179,8 +179,9 @@ export interface Env {
   MILO_TIER3_DUTY_TARGET: string;
   MILO_MAX_TIER3_MS_PER_WAKE: string;
   /**
-   * Optional bearer for /api/auth routes. Set via `wrangler secret put
-   * MILO_ADMIN_TOKEN`; when unset the auth surface is open (local dev).
+   * Bearer for /api/auth/* and /agents/* routes. Set via `wrangler secret
+   * put MILO_ADMIN_TOKEN` (or `.dev.vars` locally). Unset does not mean
+   * open — the vault routes return 503 until a token exists.
    */
   MILO_ADMIN_TOKEN?: string;
   /** Set by the outbound handler, never exposed to the sandbox. */

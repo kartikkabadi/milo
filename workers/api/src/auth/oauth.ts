@@ -166,7 +166,13 @@ async function githubDevicePoll(pending: Extract<PendingOAuth, { flow: "device" 
       },
     };
   }
-  if (d.error === "authorization_pending" || d.error === "slow_down") {
+  if (d.error === "slow_down") {
+    // GitHub is throttling us; ratchet the interval so the next poll — and
+    // every one after — honors it. The vault re-stores this pending state.
+    pending.interval += 5;
+    return { status: "pending", retryAfter: pending.interval };
+  }
+  if (d.error === "authorization_pending") {
     return { status: "pending", retryAfter: pending.interval };
   }
   if (d.error === "expired_token") return { status: "expired" };

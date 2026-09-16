@@ -65,9 +65,10 @@
   // Secrets are set with `wrangler secret put`, never committed. See README.md.
   //
   //   AI_GATEWAY_TOKEN     - Tier 0 think. Never enters the sandbox.
-  //   MILO_ADMIN_TOKEN     - Optional. When set, every /api/auth route needs
-  //                          `Authorization: Bearer <token>` — the GUI sends it
-  //                          from the Connect panel. Unset = open (local dev).
+  //   MILO_ADMIN_TOKEN     - Bearer for /api/auth/* and /agents/*. With no
+  //                          token configured the vault returns 503 — locked,
+  //                          not open. Locally: put it in .dev.vars (gitignored)
+  //                          and paste it into the Connect panel.
   //
   // Provider credentials are NOT wrangler secrets. They are user credentials,
   // entered in the GUI's Connect panel and stored in the AuthVault DO. The

@@ -7,6 +7,7 @@
 import type { Env, HarnessId, Tier } from "../env.ts";
 import { getHarness, HARNESSES } from "../harness/index.ts";
 import { vaultStub } from "../auth/inject.ts";
+import { isAuthorized } from "../auth/guard.ts";
 import { THEMES } from "./themes.ts";
 import { includedContainerHours, priceScenario } from "../cost/model.ts";
 import { INSTANCE_TYPES } from "../cost/rates.ts";
@@ -68,16 +69,19 @@ export async function handleApi(request: Request, env: Env, _ctx: ExecutionConte
    * instructions, and last-four hints — never a credential value.
    *
    * These routes mutate the vault, so they are the one part of the API
-   * behind a gate: when MILO_ADMIN_TOKEN is set (a wrangler secret), every
-   * /auth request must carry `Authorization: Bearer <token>`. Unset means
-   * open — the local-dev default.
+   * behind a gate — and the gate is not optional: with no MILO_ADMIN_TOKEN
+   * configured the vault is locked rather than open. To run without one,
+   * set a token locally via `.dev.vars` and paste it into Connect.
    * ---------------------------------------------------------------- */
 
-  const adminToken = env.MILO_ADMIN_TOKEN;
-  if (adminToken && path.startsWith("/auth")) {
-    if (request.headers.get("authorization") !== `Bearer ${adminToken}`) {
-      return bad("unauthorized", 401);
+  if (path.startsWith("/auth")) {
+    if (!env.MILO_ADMIN_TOKEN) {
+      return bad(
+        "vault is locked — set the MILO_ADMIN_TOKEN secret and paste it into Connect",
+        503,
+      );
     }
+    if (!isAuthorized(request, env)) return bad("unauthorized", 401);
   }
 
   if (path === "/auth/providers" && method === "GET") {
