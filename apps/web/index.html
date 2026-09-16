@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>milo — the watcher that ships while you sleep</title>
+    <meta
+      name="description"
+      content="Milo is a Cloudflare-native GUI for running cloud coding agents with extreme cost efficiency. Tiers 0-2 run without a container. Only Tier 3 leases one."
+    />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/app-icon.svg" />
+    <meta name="color-scheme" content="dark light" />
+
+    <!--
+      Theme bootstrap. Inline, before first paint, so there is no flash of the
+      wrong theme. Kept in sync with apps/web/src/lib/themes.ts by
+      tools/themes/check.ts, which fails the build if they drift.
+
+      The CSP hash is the reason this is written out rather than injected at
+      build time: an inline script that changes every build has no stable hash.
+    -->
+    <script>
+      (function () {
+        try {
+          var k = "milo.theme";
+          var s = localStorage.getItem(k);
+          var m = {
+            "spartan-night": 1,
+            "hellas-marble": 0,
+            "milo-dark": 1,
+            "milo-light": 0,
+            "ion-purple": 1,
+            "halo-ring": 1,
+            "forge-red": 1,
+          };
+          var id = s && m[s] !== undefined ? s : null;
+          if (!id) {
+            id =
+              window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches
+                ? "hellas-marble"
+                : "spartan-night";
+          }
+          var r = document.documentElement;
+          r.setAttribute("data-theme", id);
+          r.classList.toggle("dark", m[id] === 1);
+          r.style.colorScheme = m[id] === 1 ? "dark" : "light";
+        } catch (e) {
+          document.documentElement.setAttribute("data-theme", "spartan-night");
+          document.documentElement.classList.add("dark");
+        }
+      })();
+    </script>
+
+    <style>
+      /* Pre-React background, so the first paint is the right colour even
+         before the stylesheet loads. Matches Spartan Night. */
+      html[data-theme="spartan-night"],
+      html[data-theme="milo-dark"],
+      html[data-theme="ion-purple"],
+      html[data-theme="halo-ring"],
+      html[data-theme="forge-red"] {
+        background: #0c0a08;
+      }
+      html[data-theme="hellas-marble"] {
+        background: #f5f1e8;
+      }
+      html[data-theme="milo-light"] {
+        background: #ffffff;
+      }
+      #root {
+        min-height: 100dvh;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

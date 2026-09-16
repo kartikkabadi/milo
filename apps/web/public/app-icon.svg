@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  milo app icon.
+
+  Flat, one colour, no gradient. The mark sits inside a rounded squircle with
+  clearspace equal to the height of the `o` — 4 units at this scale.
+
+  Squircle radius is 16 on a 64 grid, which is the iOS/macOS superellipse
+  approximation at small sizes. Do not scale the radius independently of the
+  icon; at 24px and below the radius reads as a circle either way.
+
+  The soft 2.5D variant is a separate file and a separate decision. It is
+  allowed on the app icon only, never on the mark, never in GUI chrome.
+  See brand.md.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="milo">
+  <title>milo app icon</title>
+
+  <!-- Torch dark: warm off-black, never pure black. -->
+  <rect x="0" y="0" width="64" height="64" rx="16" fill="#0C0A08" />
+
+  <!-- The mark, scaled 1.55x and centred. Clearspace = 4 units. -->
+  <g transform="translate(32 32) scale(1.55) translate(-16 -16)" color="#E86A1F">
+    <path
+      d="M8 7.5 Q16.5 11 25 7.5"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+    />
+    <path
+      d="M14 15 V20 L17.5 20 V25 M14 18 L21.5 13 M21.5 13 h0.01"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2.6"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+  </g>
+</svg>

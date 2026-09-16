@@ -1,0 +1,260 @@
+{
+  "$schema": "https://opencode.ai/theme.json",
+  "name": "milo-greek",
+  "defs": {
+    "d_bg": "#0C0A08",
+    "d_surface": "#1A1512",
+    "d_surface2": "#241C15",
+    "d_border": "#2A2420",
+    "d_borderAccent": "#8C6A3C",
+    "d_text": "#EDE6D6",
+    "d_muted": "#A8A29A",
+    "d_dim": "#6B675F",
+    "d_accent": "#E86A1F",
+    "d_accent2": "#F59E0B",
+    "d_success": "#3ECF8E",
+    "d_warn": "#F59E0B",
+    "d_danger": "#F87171",
+    "d_info": "#7FB2E5",
+    "d_keyline": "#8C6A3C",
+    "d_comment": "#6B675F",
+    "d_keyword": "#E8B04B",
+    "d_func": "#F59E0B",
+    "d_variable": "#EDE6D6",
+    "d_string": "#3ECF8E",
+    "d_number": "#E86A1F",
+    "d_type": "#7FB2E5",
+    "d_operator": "#A8A29A",
+    "d_punctuation": "#A8A29A",
+    "d_added": "#3ECF8E",
+    "d_removed": "#F87171",
+    "d_context": "#6B675F",
+    "d_addedBg": "#1E2E22",
+    "d_removedBg": "#331917",
+    "d_pendingBg": "#241C15",
+    "l_bg": "#F5F1E8",
+    "l_surface": "#EDE6D6",
+    "l_surface2": "#E3D9C2",
+    "l_border": "#D6CBB2",
+    "l_borderAccent": "#8A8578",
+    "l_text": "#1E1C18",
+    "l_muted": "#6B675F",
+    "l_dim": "#8A8578",
+    "l_accent": "#3A7BD5",
+    "l_accent2": "#6B7C4A",
+    "l_success": "#4A7C3A",
+    "l_warn": "#9A6700",
+    "l_danger": "#B3261E",
+    "l_info": "#3A7BD5",
+    "l_keyline": "#C9A227",
+    "l_comment": "#8A8578",
+    "l_keyword": "#3A7BD5",
+    "l_func": "#1D5FBF",
+    "l_variable": "#1E1C18",
+    "l_string": "#4A7C3A",
+    "l_number": "#9A6700",
+    "l_type": "#6B7C4A",
+    "l_operator": "#6B675F",
+    "l_punctuation": "#6B675F",
+    "l_added": "#4A7C3A",
+    "l_removed": "#B3261E",
+    "l_context": "#8A8578",
+    "l_addedBg": "#E2EAD8",
+    "l_removedBg": "#F3D9D4",
+    "l_pendingBg": "#EDE6D6"
+  },
+  "theme": {
+    "primary": {
+      "dark": "d_accent",
+      "light": "l_accent"
+    },
+    "secondary": {
+      "dark": "d_accent2",
+      "light": "l_accent2"
+    },
+    "accent": {
+      "dark": "d_accent",
+      "light": "l_accent"
+    },
+    "error": {
+      "dark": "d_danger",
+      "light": "l_danger"
+    },
+    "warning": {
+      "dark": "d_warn",
+      "light": "l_warn"
+    },
+    "success": {
+      "dark": "d_success",
+      "light": "l_success"
+    },
+    "info": {
+      "dark": "d_info",
+      "light": "l_info"
+    },
+    "text": {
+      "dark": "d_text",
+      "light": "l_text"
+    },
+    "textMuted": {
+      "dark": "d_muted",
+      "light": "l_muted"
+    },
+    "textDim": {
+      "dark": "d_dim",
+      "light": "l_dim"
+    },
+    "background": {
+      "dark": "d_bg",
+      "light": "l_bg"
+    },
+    "backgroundPanel": {
+      "dark": "d_surface",
+      "light": "l_surface"
+    },
+    "backgroundElement": {
+      "dark": "d_surface2",
+      "light": "l_surface2"
+    },
+    "border": {
+      "dark": "d_border",
+      "light": "l_border"
+    },
+    "borderActive": {
+      "dark": "d_borderAccent",
+      "light": "l_borderAccent"
+    },
+    "borderSubtle": {
+      "dark": "d_border",
+      "light": "l_border"
+    },
+    "diffAdded": {
+      "dark": "d_added",
+      "light": "l_added"
+    },
+    "diffRemoved": {
+      "dark": "d_removed",
+      "light": "l_removed"
+    },
+    "diffContext": {
+      "dark": "d_context",
+      "light": "l_context"
+    },
+    "diffAddedBg": {
+      "dark": "d_addedBg",
+      "light": "l_addedBg"
+    },
+    "diffRemovedBg": {
+      "dark": "d_removedBg",
+      "light": "l_removedBg"
+    },
+    "diffContextBg": {
+      "dark": "d_pendingBg",
+      "light": "l_pendingBg"
+    },
+    "diffAddedLineNumberBg": {
+      "dark": "d_addedBg",
+      "light": "l_addedBg"
+    },
+    "diffRemovedLineNumberBg": {
+      "dark": "d_removedBg",
+      "light": "l_removedBg"
+    },
+    "diffContextLineNumberBg": {
+      "dark": "d_pendingBg",
+      "light": "l_pendingBg"
+    },
+    "diffHunkHeader": {
+      "dark": "d_muted",
+      "light": "l_muted"
+    },
+    "diffHighlightAdded": {
+      "dark": "d_added",
+      "light": "l_added"
+    },
+    "diffHighlightRemoved": {
+      "dark": "d_removed",
+      "light": "l_removed"
+    },
+    "markdownText": {
+      "dark": "d_text",
+      "light": "l_text"
+    },
+    "markdownHeading": {
+      "dark": "d_text",
+      "light": "l_text"
+    },
+    "markdownLink": {
+      "dark": "d_accent",
+      "light": "l_accent"
+    },
+    "markdownLinkText": {
+      "dark": "d_accent",
+      "light": "l_accent"
+    },
+    "markdownCode": {
+      "dark": "d_string",
+      "light": "l_string"
+    },
+    "markdownBlockQuote": {
+      "dark": "d_muted",
+      "light": "l_muted"
+    },
+    "markdownEmph": {
+      "dark": "d_accent2",
+      "light": "l_accent2"
+    },
+    "markdownStrong": {
+      "dark": "d_text",
+      "light": "l_text"
+    },
+    "markdownHorizontalRule": {
+      "dark": "d_border",
+      "light": "l_border"
+    },
+    "markdownListItem": {
+      "dark": "d_text",
+      "light": "l_text"
+    },
+    "markdownListItemBullet": {
+      "dark": "d_accent",
+      "light": "l_accent"
+    },
+    "syntaxComment": {
+      "dark": "d_comment",
+      "light": "l_comment"
+    },
+    "syntaxKeyword": {
+      "dark": "d_keyword",
+      "light": "l_keyword"
+    },
+    "syntaxFunction": {
+      "dark": "d_func",
+      "light": "l_func"
+    },
+    "syntaxVariable": {
+      "dark": "d_variable",
+      "light": "l_variable"
+    },
+    "syntaxString": {
+      "dark": "d_string",
+      "light": "l_string"
+    },
+    "syntaxNumber": {
+      "dark": "d_number",
+      "light": "l_number"
+    },
+    "syntaxType": {
+      "dark": "d_type",
+      "light": "l_type"
+    },
+    "syntaxOperator": {
+      "dark": "d_operator",
+      "light": "l_operator"
+    },
+    "syntaxPunctuation": {
+      "dark": "d_punctuation",
+      "light": "l_punctuation"
+    }
+  }
+}

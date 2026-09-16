@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  milo mark.
+
+  The sleeping watcher and a git branch, in two shapes.
+
+    Shape 1  the closed eye. A statue-cut eyelid line: one shallow arc, gapped
+             at both ends by round caps. The watcher, asleep.
+    Shape 2  the branch. A vertical stem with one Greek key step cut into it,
+             a diagonal fork, and a merge dot. The dot is a zero-length
+             round-capped segment, so it costs no third shape.
+
+  Two shapes. 2px stroke. Round caps. currentColor, so it inherits.
+
+  At 32px and up, the arc sits above the fork and reads as a face with one
+  closed eye. At 16px it resolves to a compact glyph with a dot, which is what
+  a favicon needs to be. The Greek key step is a large-size detail; it is not
+  load-bearing at small ones.
+
+  Do not outline, gradient, rotate, shadow, or photograph this mark.
+  See brand.md.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" role="img" aria-label="milo">
+  <title>milo</title>
+
+  <!-- Shape 1: the closed eye. -->
+  <path
+    d="M8 7.5 Q16.5 11 25 7.5"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+  />
+
+  <!--
+    Shape 2: the branch.
+      M14 15 V20 L17.5 20 V25   vertical stem, stepped right by 3.5 units
+                                 at y=20. That step is the Greek key notch.
+      M14 18 L21.5 13           diagonal fork, rising from the stem
+      M21.5 13 h0.01            the merge dot, drawn by the round cap
+  -->
+  <path
+    d="M14 15 V20 L17.5 20 V25 M14 18 L21.5 13 M21.5 13 h0.01"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2.6"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+</svg>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  milo app icon, soft 2.5D variant.
+
+  Permitted on the app icon ONLY. Never on the mark, never in GUI chrome,
+  never on the wordmark.
+
+  The 2.5D is one inset edge highlight and one soft shadow. Both subtle, both
+  derived from a single colour. It is not a gradient, not a bevel, not a photo.
+  If you can see the technique, it is too strong.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="milo">
+  <title>milo app icon, soft 2.5D</title>
+  <defs>
+    <linearGradient id="milo-surface" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#241C15" />
+      <stop offset="1" stop-color="#0C0A08" />
+    </linearGradient>
+    <filter id="milo-lift" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-color="#000000" flood-opacity="0.45" />
+    </filter>
+  </defs>
+
+  <rect x="0" y="0" width="64" height="64" rx="16" fill="url(#milo-surface)" filter="url(#milo-lift)" />
+  <!-- One inset edge highlight. That is the whole 2.5D. -->
+  <rect x="0.75" y="0.75" width="62.5" height="62.5" rx="15.25" fill="none" stroke="#8C6A3C" stroke-opacity="0.35" stroke-width="1.5" />
+
+  <g transform="translate(32 32) scale(1.55) translate(-16 -16)" color="#E86A1F">
+    <path d="M8 7.5 Q16.5 11 25 7.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+    <path
+      d="M14 15 V20 L17.5 20 V25 M14 18 L21.5 13 M21.5 13 h0.01"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2.6"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+  </g>
+</svg>

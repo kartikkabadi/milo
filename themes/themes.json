@@ -1,0 +1,97 @@
+{
+  "generated": "packages/theme-kit/src/palettes.ts",
+  "note": "Do not hand-edit any file under themes/. Edit the palette source and run `npm run themes`.",
+  "themes": [
+    {
+      "id": "hellas-marble",
+      "label": "Hellas Marble",
+      "mode": "light",
+      "blurb": "Aegean blue on marble. The default daylight theme.",
+      "defaultFor": "light",
+      "danger": false,
+      "artifacts": {
+        "pi": "themes/pi/hellas-marble.json",
+        "opencode": "themes/opencode/hellas-marble.json",
+        "xterm": "themes/xterm/hellas-marble.json"
+      }
+    },
+    {
+      "id": "spartan-night",
+      "label": "Spartan Night",
+      "mode": "dark",
+      "blurb": "Torchlight on charcoal. The default torch-dark theme.",
+      "defaultFor": "dark",
+      "danger": false,
+      "artifacts": {
+        "pi": "themes/pi/spartan-night.json",
+        "opencode": "themes/opencode/spartan-night.json",
+        "xterm": "themes/xterm/spartan-night.json"
+      }
+    },
+    {
+      "id": "milo-dark",
+      "label": "Milo Dark",
+      "mode": "dark",
+      "blurb": "The original. Cool blue on ink.",
+      "defaultFor": null,
+      "danger": false,
+      "artifacts": {
+        "pi": "themes/pi/milo-dark.json",
+        "opencode": "themes/opencode/milo-dark.json",
+        "xterm": "themes/xterm/milo-dark.json"
+      }
+    },
+    {
+      "id": "milo-light",
+      "label": "Milo Light",
+      "mode": "light",
+      "blurb": "The original daylight. Plain paper.",
+      "defaultFor": null,
+      "danger": false,
+      "artifacts": {
+        "pi": "themes/pi/milo-light.json",
+        "opencode": "themes/opencode/milo-light.json",
+        "xterm": "themes/xterm/milo-light.json"
+      }
+    },
+    {
+      "id": "ion-purple",
+      "label": "Ion Purple",
+      "mode": "dark",
+      "blurb": "Black-violet at the top, ionising downward.",
+      "defaultFor": null,
+      "danger": false,
+      "artifacts": {
+        "pi": "themes/pi/ion-purple.json",
+        "opencode": "themes/opencode/ion-purple.json",
+        "xterm": "themes/xterm/ion-purple.json"
+      }
+    },
+    {
+      "id": "halo-ring",
+      "label": "Halo Ring",
+      "mode": "dark",
+      "blurb": "Void black with an electric ring. Ring opens on wake.",
+      "defaultFor": null,
+      "danger": false,
+      "artifacts": {
+        "pi": "themes/pi/halo-ring.json",
+        "opencode": "themes/opencode/halo-ring.json",
+        "xterm": "themes/xterm/halo-ring.json"
+      }
+    },
+    {
+      "id": "forge-red",
+      "label": "Forge Red",
+      "mode": "dark",
+      "blurb": "Danger and --yolo only. Never full-time.",
+      "defaultFor": null,
+      "danger": true,
+      "artifacts": {
+        "pi": "themes/pi/forge-red.json",
+        "opencode": "themes/opencode/forge-red.json",
+        "xterm": "themes/xterm/forge-red.json"
+      }
+    }
+  ]
+}

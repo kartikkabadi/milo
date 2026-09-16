@@ -1,0 +1,22 @@
+{
+  "name": "@milo/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit",
+    "tail": "wrangler tail"
+  },
+  "dependencies": {
+    "@cloudflare/sandbox": "^0.6.11",
+    "agents": "^0.2.0",
+    "ai": "^5.0.258"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250916.0",
+    "typescript": "^5.9.2",
+    "wrangler": "^4.42.0"
+  }
+}

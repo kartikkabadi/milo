@@ -1,0 +1,16 @@
+{
+  "name": "@milo/theme-kit",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "One palette source. Emits Pi themes, OpenCode themes, xterm ITheme, and web CSS variables.",
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./palettes": "./src/palettes.ts",
+    "./emit": "./src/emit.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  }
+}

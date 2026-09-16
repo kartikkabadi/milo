@@ -1,0 +1,73 @@
+{
+  // Milo control plane.
+  //
+  // Cost posture, in one place:
+  //   - The container is `lite` (1/16 vCPU, 256 MiB, 2 GB). This is the
+  //     cheapest instance type and the only one whose included allotments
+  //     reach 100 container-hours/month. See COST_MODEL.md.
+  //   - `max_instances: 1` is deliberate. One container, leased and queued.
+  //     Ten agents share it. Raising this multiplies the bill linearly; the
+  //     exact cost of each step is computed in COST_MODEL.md.
+  //   - `sleep_after` is set on the Sandbox class in code, not here.
+  //   - There is no warm pool and no keepAlive. Both are 30x idiot indexes.
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "milo-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-09-15",
+  "compatibility_flags": ["nodejs_compat"],
+
+  "observability": {
+    "enabled": true
+  },
+
+  // Workers Paid allows up to 5 minutes of CPU per invocation. Milo does not
+  // need it — a 30s default would be plenty — but the tier ladder can run a
+  // coarse file op across many files in one RPC, so we leave headroom.
+  "limits": {
+    "cpu_ms": 300000
+  },
+
+  "durable_objects": {
+    "bindings": [
+      { "name": "MILO_SESSION", "class_name": "MiloSession" },
+      { "name": "CONTAINER_GATE", "class_name": "ContainerGate" },
+      { "name": "Sandbox", "class_name": "Sandbox" }
+    ]
+  },
+
+  "migrations": [
+    { "tag": "v1", "new_sqlite_classes": ["MiloSession"] },
+    { "tag": "v2", "new_sqlite_classes": ["ContainerGate"] },
+    { "tag": "v3", "new_sqlite_classes": ["Sandbox"] }
+  ],
+
+  "containers": [
+    {
+      "class_name": "Sandbox",
+      "image": "../../packages/sandbox-image/Dockerfile",
+      "instance_type": "lite",
+      "max_instances": 1
+    }
+  ],
+
+  "r2_buckets": [
+    { "binding": "SNAPSHOTS", "bucket_name": "milo-snapshots" }
+  ],
+
+  "vars": {
+    "MILO_ENV": "production",
+    "MILO_TIER3_DUTY_TARGET": "0.0333",
+    "MILO_MAX_TIER3_MS_PER_WAKE": "120000"
+  },
+
+  // Secrets are set with `wrangler secret put`, never committed. See README.md.
+  //
+  //   AI_GATEWAY_TOKEN     - Tier 0 think. Never enters the sandbox.
+  //   MODEL_PROVIDER_KEY_* - passed to the harness inside the sandbox with
+  //                          setEnvVars. Unavoidable: the harness has to call
+  //                          the model. Scoped to that session's container.
+  //
+  // Note what is NOT here: a GitHub token. Nothing in the sandbox needs one,
+  // because every step that touches a credential runs in the Worker. See
+  // src/index.ts for the full explanation.
+}

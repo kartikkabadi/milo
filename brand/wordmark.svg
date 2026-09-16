@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  milo wordmark.
+
+  Sentence-case, lowercase, geometric. Built from strokes rather than set in a
+  font, so it cannot reflow, cannot fall back to a system serif on a machine
+  that lacks the font, and cannot be rendered at a wrong weight.
+
+  Geometry:
+    baseline y=26   x-height top y=12   ascender top y=6
+    stroke 3.5      round caps          even-odd spacing at 6-7.5 units
+
+  This file is the wordmark ONLY. It is never locked up with the mark.
+  See brand.md, "Wordmark and mark never locked together".
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 32" width="120" height="64" role="img" aria-label="milo">
+  <title>milo</title>
+  <g fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+    <!-- m: left stem, two arches sharing a middle stem -->
+    <path d="M3 26 V17 C3 13.2 5.5 12 7.75 12 C10 12 12.5 13.2 12.5 17 V26" />
+    <path d="M12.5 17 C12.5 13.2 15 12 17.25 12 C19.5 12 22 13.2 22 17 V26" />
+    <!-- i: stem and a dot. The dot is a zero-length round cap, so it stays optically circular. -->
+    <path d="M28 13 V26 M28 8 h0.01" />
+    <!-- l: the ascender -->
+    <path d="M35.5 6 V26" />
+    <!-- o: a true circle, not an oval -->
+    <circle cx="50" cy="19" r="7" />
+  </g>
+</svg>

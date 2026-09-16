@@ -1,0 +1,23 @@
+{
+  "name": "milo",
+  "version": "0.1.0",
+  "description": "Milo watches your repo while you sleep. Wakes on CI fail, leaves a diff, goes back to sleep.",
+  "type": "module",
+  "license": "SEE README",
+  "bin": {
+    "milo": "./src/cli.ts"
+  },
+  "files": ["src", "themes", "README.md"],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": ["agents", "cloudflare", "coding-agent", "durable-objects", "cost"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kartikkabadi/milo.git",
+    "directory": "packages/milo-cli"
+  }
+}

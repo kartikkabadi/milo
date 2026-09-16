@@ -1,0 +1,61 @@
+{
+  "$schema": "https://raw.githubusercontent.com/earendil-works/pi/main/packages/coding-agent/src/modes/interactive/theme/theme-schema.json",
+  "themes": [
+    {
+      "id": "hellas-marble",
+      "label": "Hellas Marble",
+      "mode": "light",
+      "file": "hellas-marble.json",
+      "default": "light",
+      "danger": false
+    },
+    {
+      "id": "spartan-night",
+      "label": "Spartan Night",
+      "mode": "dark",
+      "file": "spartan-night.json",
+      "default": "dark",
+      "danger": false
+    },
+    {
+      "id": "milo-dark",
+      "label": "Milo Dark",
+      "mode": "dark",
+      "file": "milo-dark.json",
+      "default": null,
+      "danger": false
+    },
+    {
+      "id": "milo-light",
+      "label": "Milo Light",
+      "mode": "light",
+      "file": "milo-light.json",
+      "default": null,
+      "danger": false
+    },
+    {
+      "id": "ion-purple",
+      "label": "Ion Purple",
+      "mode": "dark",
+      "file": "ion-purple.json",
+      "default": null,
+      "danger": false
+    },
+    {
+      "id": "halo-ring",
+      "label": "Halo Ring",
+      "mode": "dark",
+      "file": "halo-ring.json",
+      "default": null,
+      "danger": false
+    },
+    {
+      "id": "forge-red",
+      "label": "Forge Red",
+      "mode": "dark",
+      "file": "forge-red.json",
+      "default": null,
+      "danger": true
+    }
+  ]
+}

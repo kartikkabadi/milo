@@ -1,0 +1,29 @@
+{
+  "name": "milo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Milo watches your repo while you sleep. Cloudflare-native GUI for running cloud coding agents at near-zero idle cost.",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "workspaces": [
+    "packages/*",
+    "workers/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "themes": "node --experimental-strip-types packages/theme-kit/src/cli.ts",
+    "cost": "node --experimental-strip-types tools/cost/cli.ts",
+    "loadtest": "node --experimental-strip-types tools/loadtest/run.ts",
+    "dev:web": "npm run dev -w @milo/web",
+    "dev:api": "npm run dev -w @milo/api",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "build": "npm run build --workspaces --if-present",
+    "check": "node --experimental-strip-types tools/themes/check.ts && node --experimental-strip-types tools/cost/parity.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.3",
+    "typescript": "^5.9.2"
+  }
+}

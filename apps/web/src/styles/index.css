@@ -1,0 +1,162 @@
+/*
+ * Milo GUI styles.
+ *
+ * Token blocks are GENERATED — see packages/theme-kit. This file only adds the
+ * type stack, the base layer, and the two motif utilities (fluting, meander).
+ *
+ * No FOUC: index.html resolves the theme inline, before first paint. See the
+ * inline script there, which is the only place the theme is read before React
+ * mounts.
+ */
+
+@import "tailwindcss";
+@import "../../../../themes/web.css";
+
+@theme {
+  /* Type trio. Marketing serif, UI sans, code mono. Never mixed. */
+  --font-display: "Newsreader", "Literata", Georgia, serif;
+  --font-sans: "Inter Tight", "Inter", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", "Geist Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    letter-spacing: -0.01em;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Marketing headlines only. Serif never appears in the app chrome. */
+  .display {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+    font-weight: 500;
+  }
+
+  code,
+  pre,
+  kbd,
+  .mono {
+    font-family: var(--font-mono);
+    letter-spacing: 0;
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--accent) 28%, transparent);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  /*
+   * Fluting: the vertical rhythm motif. A 4px column repeated on the leading
+   * edge of a panel. It is structure, not decoration — it aligns to the same
+   * 4px grid as spacing, so it never drifts.
+   */
+  .fluted {
+    background-image: repeating-linear-gradient(
+      to right,
+      color-mix(in oklab, var(--border) 70%, transparent) 0 1px,
+      transparent 1px var(--flute)
+    );
+    background-repeat: repeat-y;
+    background-size: var(--flute) 100%;
+    background-position: left top;
+  }
+
+  /*
+   * Meander: the Greek key. One 2px divider that steps. Used for section
+   * dividers and the progress track. It must stay 2px — a thick meander is a
+   * costume, not a signature.
+   */
+  .meander {
+    height: 2px;
+    background-image:
+      linear-gradient(to right, var(--keyline) 0 6px, transparent 6px 8px),
+      linear-gradient(to right, transparent 0 2px, var(--keyline) 2px 4px, transparent 4px 8px);
+    background-size: 8px 1px, 8px 1px;
+    background-position: 0 0, 0 1px;
+    background-repeat: repeat-x;
+    opacity: 0.75;
+  }
+
+  /* A single key step, for inline use beside a label. */
+  .meander-step {
+    width: 14px;
+    height: 7px;
+    border-left: 2px solid var(--keyline);
+    border-bottom: 2px solid var(--keyline);
+    border-bottom-left-radius: 1px;
+  }
+
+  /* Laurel: success states only. A check inside a small wreath arc. */
+  .laurel {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .laurel::before,
+  .laurel::after {
+    content: "";
+    position: absolute;
+    inset: -3px;
+    border-radius: 999px;
+    border: 1.5px solid var(--success);
+    opacity: 0.5;
+  }
+  .laurel::before {
+    clip-path: polygon(0 0, 22% 0, 22% 100%, 0 100%);
+  }
+  .laurel::after {
+    clip-path: polygon(78% 0, 100% 0, 100% 100%, 78% 100%);
+  }
+
+  /* Diff rows. Backgrounds come from tokens so every theme carries its own. */
+  .diff-add {
+    background: var(--diff-added-bg);
+    color: var(--diff-added);
+  }
+  .diff-del {
+    background: var(--diff-removed-bg);
+    color: var(--diff-removed);
+  }
+  .diff-ctx {
+    color: var(--diff-context);
+  }
+  .diff-pending {
+    background: var(--diff-pending-bg);
+  }
+}
+
+/* The sleep/wake ring. Closes when the agent sleeps, opens when it wakes. */
+@keyframes milo-ring-open {
+  from {
+    stroke-dashoffset: 138;
+    opacity: 0.4;
+  }
+  to {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .milo-ring-track {
+    animation: none !important;
+  }
+}
