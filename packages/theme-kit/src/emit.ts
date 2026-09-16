@@ -581,13 +581,13 @@ export function emitAll(): Record<string, string> {
   );
 
   // The CLI is published as a standalone package, so it cannot reach outside
-  // its own directory at runtime. This copy is what `npm i -g milo` ships.
+  // its own directory at runtime. This copy is what the `milo` CLI ships.
   out["packages/milo-cli/themes/bundle.json"] = out["themes/bundle.json"];
 
   out["themes/themes.json"] = JSON.stringify(
     {
       generated: "packages/theme-kit/src/palettes.ts",
-      note: "Do not hand-edit any file under themes/. Edit the palette source and run `npm run themes`.",
+      note: "Do not hand-edit any file under themes/. Edit the palette source and run `bun run themes`.",
       themes: paletteList.map((p) => ({
         id: p.id,
         label: p.label,

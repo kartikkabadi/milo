@@ -4,6 +4,7 @@
   "private": true,
   "description": "Milo watches your repo while you sleep. Cloudflare-native GUI for running cloud coding agents at near-zero idle cost.",
   "type": "module",
+  "packageManager": "bun@1.4.2",
   "engines": {
     "node": ">=20"
   },
@@ -13,14 +14,15 @@
     "apps/*"
   ],
   "scripts": {
-    "themes": "node --experimental-strip-types packages/theme-kit/src/cli.ts",
-    "cost": "node --experimental-strip-types tools/cost/cli.ts",
-    "loadtest": "node --experimental-strip-types tools/loadtest/run.ts",
-    "dev:web": "npm run dev -w @milo/web",
-    "dev:api": "npm run dev -w @milo/api",
-    "typecheck": "npm run typecheck --workspaces --if-present",
-    "build": "npm run build --workspaces --if-present",
-    "check": "node --experimental-strip-types tools/themes/check.ts && node --experimental-strip-types tools/cost/parity.ts"
+    "milo": "bun packages/milo-cli/src/cli.ts",
+    "themes": "bun packages/theme-kit/src/cli.ts",
+    "cost": "bun tools/cost/cli.ts",
+    "loadtest": "bun tools/loadtest/run.ts",
+    "dev:web": "bun run --filter @milo/web dev",
+    "dev:api": "bun run --filter @milo/api dev",
+    "typecheck": "bun run --filter '*' typecheck",
+    "build": "bun run --filter '*' build",
+    "check": "bun tools/themes/check.ts && bun tools/cost/parity.ts"
   },
   "devDependencies": {
     "@types/node": "^22.20.3",

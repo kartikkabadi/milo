@@ -30,10 +30,10 @@ Milo keeps your main green. You keep building.
 Below the buttons, two things side by side:
 
 ```
-npm i -g milo
+git clone https://github.com/kartikkabadi/milo.git
 ```
-with a copy button, and a looping recording of the TUI. Real product UI. Not a
-gradient blob, not a mockup of a UI that does not exist.
+with a copy button, and a looping recording of the real GUI. Real product UI.
+Not a gradient blob, not a mockup of a UI that does not exist.
 
 **Eyebrow is mono and lowercase.** `// meet Milo` — the double slash is the
 comment syntax, which is the only reason it is there.
@@ -42,7 +42,7 @@ comment syntax, which is the only reason it is there.
 
 ## Numbers strip
 
-Real numbers only. Every one of these is reproduced by `npm run cost`, and the
+Real numbers only. Every one of these is reproduced by `bun run cost`, and the
 arithmetic is in `COST_MODEL.md`. If a number here cannot be reproduced, delete
 it rather than rounding it.
 

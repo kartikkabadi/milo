@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Prints the cost model. Run from the repo root:  npm run cost
+ * Prints the cost model. Run from the repo root:  bun run cost
  *
  * The output of this script is the source of the tables in COST_MODEL.md.
  * If you change a rate, change it in rates.ts and re-run this.

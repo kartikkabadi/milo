@@ -6,7 +6,7 @@ runs that workload costs **$7.02/month**. The $5 base plan is reachable, but onl
 cutting container-needing tests to about 3.7% of turns.
 
 Everything below is arithmetic over rates read from the Cloudflare docs on **2026-09-16**.
-Every number is reproduced by `npm run cost`. Nothing here is an average or an estimate
+Every number is reproduced by `bun run cost`. Nothing here is an average or an estimate
 dressed up as a fact.
 
 ---
@@ -272,7 +272,7 @@ Both show up immediately in a ranked idiot index. That is why the index exists.
 
 ## 10. The load test disagrees with the static model, and it is right
 
-`npm run loadtest` runs a discrete-event simulation of the same workload with a
+`bun run loadtest` runs a discrete-event simulation of the same workload with a
 real lease queue in front of `max_instances: 1`. It produces **$7.31**, not the
 $7.02 above. The difference is contention, and it is worth understanding.
 
@@ -340,9 +340,9 @@ container and know exactly what it costs.
 ## 11. Reproducing this document
 
 ```sh
-npm run cost        # the static model, every table in sections 1-9
-npm run loadtest    # the discrete-event simulation, section 10
-npm run check       # parity between the two, plus theme drift
+bun run cost        # the static model, every table in sections 1-9
+bun run loadtest    # the discrete-event simulation, section 10
+bun run check       # parity between the two, plus theme drift
 ```
 
 If a rate changes, change `workers/api/src/cost/rates.ts` and re-run all three.

@@ -11,3 +11,4 @@ build/
 .vite/
 coverage/
 .amp/
+*.tsbuildinfo

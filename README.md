@@ -17,14 +17,41 @@ snapshot, and goes back to sleep.
 
 ## Quickstart
 
+Milo is a web GUI. It deploys to your own Cloudflare account — there is no Milo
+server and nothing to sign up for.
+
 ```sh
-npm i -g milo
-cd your-repo
-milo watch
+git clone https://github.com/kartikkabadi/milo.git
+cd milo
+bun install
+
+bun run dev:api      # wrangler dev, port 8787
+bun run dev:web      # vite, port 5273
 ```
 
-That is the whole demo. `milo watch` binds a session to your repo, resumes it if
-it has been here before, and prints a live line:
+Open http://localhost:5273. The GUI is three columns: the tier ladder and
+harness picker on the left; the transcript, terminal, diff viewer, and git
+timeline in the centre; and approvals plus the **cost ledger** on the right.
+
+### The CLI
+
+The `milo` command-line companion lives in `packages/milo-cli`. It is not
+published to a registry yet — run it from source:
+
+```sh
+bun run milo watch     # bind a session to your repo and tail it
+bun run milo cost      # the whole cost model, with sources. no API needed.
+bun run milo status    # session state, tier, lease, cost, worst idiot indices
+bun run milo sleep     # snapshot to git and release the container now
+bun run milo wake      # restore from the last snapshot
+bun run milo themes    # install all seven themes for every harness
+bun run milo pull      # adopt the watch rules a teammate pushed
+bun run milo push      # publish your watch rules
+bun run milo doctor    # check the environment, with a fix for each problem
+```
+
+`milo watch` binds a session to your repo, resumes it if it has been here
+before, and prints a live line:
 
 ```
 milo watch /home/you/code/your-repo
@@ -37,19 +64,6 @@ watching. ctrl-c to stop. the session keeps its snapshot either way.
 
 idle         T1 read      no container                 head 4f2a1c8       $0.00
 testing      T3 exec      container held               head 4f2a1c8    $0.21/mo
-```
-
-### Other commands
-
-```sh
-milo cost      # the whole cost model, with sources. no API needed.
-milo status    # session state, tier, lease, cost, worst idiot indices
-milo sleep     # snapshot to git and release the container now
-milo wake      # restore from the last snapshot
-milo themes    # install all seven themes for every harness
-milo pull      # adopt the watch rules a teammate pushed
-milo push      # publish your watch rules
-milo doctor    # check the environment, with a fix for each problem
 ```
 
 ---
@@ -81,7 +95,7 @@ In the modelled 30/30/20/20 mix, **92% of turns never touch the container.**
 
 **No, and the README says so above the fold.**
 
-`npm run cost` proves it. The included Containers allotment on `lite` is exactly
+`bun run cost` proves it. The included Containers allotment on `lite` is exactly
 **100 container-hours a month** — memory and disk both land on 100, which is why
 `lite` is the only instance type worth using.
 
@@ -103,7 +117,7 @@ configuration, not the fastest one. The free fix is more isolate offload; the pa
 fix is a second container at roughly 2x the overage.
 
 Full arithmetic: **[COST_MODEL.md](COST_MODEL.md)**. It is reproduced by
-`npm run cost`, `npm run loadtest`, and `npm run check`.
+`bun run cost`, `bun run loadtest`, and `bun run check`.
 
 ---
 
@@ -134,8 +148,10 @@ Full arithmetic: **[COST_MODEL.md](COST_MODEL.md)**. It is reproduced by
 
 **Persistence is git, not VM snapshots.** Disk is ephemeral; Milo does not fight
 it. On sleep it commits, uploads a patch and a bundle to R2, and deletes the prior
-snapshot. On wake it restores with `git reset --hard` and `npm ci`. `node_modules`
-is never snapshotted, because it is reconstructible from a committed lockfile.
+snapshot. On wake it restores with `git reset --hard` and `npm ci` — overridable,
+because the sandbox image also carries bun and pnpm for repos that use them.
+`node_modules` is never snapshotted, because it is reconstructible from a
+committed lockfile.
 
 **There is no shutdown hook, and the design assumes that.** A Durable Object can
 be evicted between two lines of code with no callback. So Milo snapshots on a
@@ -156,7 +172,7 @@ workers/api/            Worker + MiloSession DO + ContainerGate + tier ladder.
   src/gate/             container-gate.ts — the single lease
 packages/theme-kit/     one palette source → Pi, OpenCode, xterm, and web CSS
 packages/sandbox-image/ Dockerfile: three harnesses, no secrets
-packages/milo-cli/      npm i -g milo
+packages/milo-cli/      the milo CLI — runs from source via `bun run milo`
 brand/                  mark, wordmark, app icon, rules, hero copy, Thiel note
 themes/                 GENERATED. Do not hand-edit.
 tools/cost/             the cost CLI + parity check
@@ -171,15 +187,10 @@ ANTI-PATTERNS.md        twelve mistakes, each priced
 
 ## The GUI
 
-```sh
-npm install
-npm run dev:api      # wrangler dev, port 8787
-npm run dev:web      # vite, port 5273
-```
-
-The GUI is three columns: the tier ladder and harness picker on the left, the
-transcript, terminal, diff viewer, and git timeline in the centre, and approvals
-plus the **cost ledger** on the right.
+The GUI is the product — see the quickstart above to run it. Three columns: the
+tier ladder and harness picker on the left, the transcript, terminal, diff
+viewer, and git timeline in the centre, and approvals plus the **cost ledger**
+on the right.
 
 The cost ledger leads with the **idiot index** — actual resources divided by the
 theoretical minimum — and ranks the three worst. The dollar figure is the last
@@ -214,8 +225,8 @@ Nothing under `themes/` is hand-edited.
 | Forge Red | dark | **danger and `--yolo` only.** Gated behind a confirmation. |
 
 ```sh
-npm run themes    # regenerate every artifact
-npm run check     # fail if anything drifted
+bun run themes    # regenerate every artifact
+bun run check     # fail if anything drifted
 ```
 
 Emitted for all seven: Pi theme JSON (53 required tokens + 3 optional), OpenCode
@@ -240,8 +251,8 @@ exactly three theme values and no custom JSON, so Milo maps its seven onto
 
 ```sh
 cd workers/api
-npx wrangler secret put GITHUB_TOKEN
-npx wrangler secret put AI_GATEWAY_TOKEN
+bunx wrangler secret put GITHUB_TOKEN
+bunx wrangler secret put AI_GATEWAY_TOKEN
 ```
 
 Egress is deny-by-default (`enableInternet = false` plus an explicit
@@ -254,13 +265,13 @@ neither does a shell inside it.
 
 ```sh
 cd workers/api
-npx wrangler r2 bucket create milo-snapshots
+bunx wrangler r2 bucket create milo-snapshots
 # set the 7-day lifecycle rule on the snapshots/ prefix
-npx wrangler deploy
+bunx wrangler deploy
 
 cd ../../apps/web
-npm run build
-npx wrangler pages deploy dist
+bun run build
+bunx wrangler pages deploy dist
 ```
 
 The `lite` instance type and `max_instances: 1` in `wrangler.jsonc` are the

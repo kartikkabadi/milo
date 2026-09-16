@@ -7,7 +7,7 @@
  *
  * Two rules that shape everything here:
  *   - Real product UI over gradient blobs.
- *   - Real numbers only. Every figure on this page is printed by `npm run cost`.
+ *   - Real numbers only. Every figure on this page is printed by `bun run cost`.
  */
 
 import { useState } from "react";
@@ -15,7 +15,7 @@ import { Mark, Meander, SleepWakeRing, Wordmark } from "../components/Brand";
 import { MiniDiff } from "../components/DiffViewer";
 import { ThemeMenu } from "../components/ThemeMenu";
 
-/* Every number here is reproduced by `npm run cost`. See COST_MODEL.md. */
+/* Every number here is reproduced by `bun run cost`. See COST_MODEL.md. */
 const NUMBERS = [
   { value: "$5.00", label: "Workers Paid base plan" },
   { value: "100", label: "container-hours included per month, lite" },
@@ -40,7 +40,7 @@ const FAQ = [
   },
   {
     q: "What happens to my files when a session sleeps?",
-    a: "Disk is ephemeral and Milo does not pretend otherwise. It commits a wip(agent) snapshot to git, uploads a patch and a bundle to R2, and restores with git reset --hard on wake. node_modules is never snapshotted; npm ci rebuilds it from the lockfile.",
+    a: "Disk is ephemeral and Milo does not pretend otherwise. It commits a wip(agent) snapshot to git, uploads a patch and a bundle to R2, and restores with git reset --hard on wake. node_modules is never snapshotted; the committed lockfile rebuilds it.",
   },
   {
     q: "Do I need my own Cloudflare account?",
@@ -56,7 +56,7 @@ const FAQ = [
   },
   {
     q: "What does it cost at 10 agents?",
-    a: "At 10 agents x 10 hours x 30 days on a 30/30/20/20 mix, $7.02 a month. The arithmetic is in COST_MODEL.md and reproduced by npm run cost. It is not $5, and the page says so above the fold.",
+    a: "At 10 agents x 10 hours x 30 days on a 30/30/20/20 mix, $7.02 a month. The arithmetic is in COST_MODEL.md and reproduced by bun run cost. It is not $5, and the page says so above the fold.",
   },
 ];
 
@@ -110,7 +110,7 @@ export function Landing() {
 
   const copy = async () => {
     try {
-      await navigator.clipboard.writeText("npm i -g milo");
+      await navigator.clipboard.writeText("git clone https://github.com/kartikkabadi/milo.git");
       setCopied(true);
       window.setTimeout(() => setCopied(false), 1600);
     } catch {
@@ -177,7 +177,7 @@ export function Landing() {
 
         <div className="mt-8 grid gap-4 lg:grid-cols-2">
           <div className="flex items-center justify-between gap-3 rounded-lg border px-3 py-2.5" style={{ borderColor: "var(--border)", background: "var(--surface)" }}>
-            <code className="text-sm">npm i -g milo</code>
+            <code className="text-sm">git clone https://github.com/kartikkabadi/milo.git</code>
             <button type="button" onClick={() => void copy()} className="rounded px-2 py-1 text-[11px]" style={{ background: "var(--surface-2)", color: copied ? "var(--success)" : "var(--muted)" }}>
               {copied ? "copied" : "copy"}
             </button>

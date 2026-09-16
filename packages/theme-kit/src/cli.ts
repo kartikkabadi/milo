@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Writes every theme artifact. Run from the repo root:  npm run themes
+ * Writes every theme artifact. Run from the repo root:  bun run themes
  *
  * Idempotent. If a file is byte-identical it is left alone, so this is safe
  * to run in a pre-commit hook or a CI drift check.

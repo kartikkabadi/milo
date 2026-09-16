@@ -2,7 +2,7 @@
  * The cost model.
  *
  * Every function here is pure arithmetic over the rates in `rates.ts`. No
- * bindings, no network. That means `npm run cost` reproduces the numbers in
+ * bindings, no network. That means `bun run cost` reproduces the numbers in
  * COST_MODEL.md on any machine, and a reviewer can check the arithmetic
  * instead of trusting it.
  *
