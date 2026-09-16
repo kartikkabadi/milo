@@ -12,6 +12,7 @@
 const KEY = "milo.adminToken";
 
 let memory = "";
+const listeners = new Set<() => void>();
 
 export function adminToken(): string {
   try {
@@ -29,4 +30,11 @@ export function setAdminToken(value: string): void {
   } catch {
     // Private mode: the in-memory copy still covers this page load.
   }
+  for (const fn of listeners) fn();
+}
+
+/** Components subscribe so a token entered mid-session takes effect. */
+export function onAdminTokenChange(fn: () => void): () => void {
+  listeners.add(fn);
+  return () => listeners.delete(fn);
 }

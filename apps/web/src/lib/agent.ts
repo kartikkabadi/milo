@@ -17,7 +17,7 @@
 
 import { useAgent } from "agents/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { adminToken } from "./admin";
+import { adminToken, onAdminTokenChange } from "./admin";
 import type { ApprovalRequest, GitTimelineEntry, HarnessId, MiloState, Tier } from "./types";
 
 export interface CostSummary {
@@ -131,6 +131,12 @@ export function useMiloSession(sessionId: string, agentHost = ""): SessionApi {
   const stateRef = useRef<MiloState | null>(null);
   stateRef.current = state;
 
+  // The admin token can arrive after mount (typed into Connect). Track it as
+  // state so queryDeps below re-resolves the socket query — otherwise the
+  // agent would stay offline on the empty cached query until a reload.
+  const [token, setToken] = useState(adminToken);
+  useEffect(() => onAdminTokenChange(() => setToken(adminToken())), []);
+
   // Streaming buffers are refs, not state: a delta per token would re-render
   // the whole transcript hundreds of times per turn.
   const textBuf = useRef("");
@@ -147,6 +153,7 @@ export function useMiloSession(sessionId: string, agentHost = ""): SessionApi {
       const token = adminToken();
       return token ? { token } : {};
     },
+    queryDeps: [token],
     onOpen: () => {
       setConnected(true);
       setError(null);

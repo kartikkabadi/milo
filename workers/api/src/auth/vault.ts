@@ -139,15 +139,27 @@ export class AuthVault extends DurableObject<Env> {
   async oauthStart(id: string): Promise<OAuthDisplay & { flowId: string }> {
     const spec = providerSpec(id);
     if (!spec?.oauth) throw new Error(`${id} has no oauth flow`);
-    // Dead flows never see another request to settle them, so sweep them on
-    // every start — otherwise abandoned sign-ins grow the DO store forever.
-    const flows = await this.ctx.storage.list<PendingOAuth>({ prefix: "oauth:flow:" });
-    const doomed = [...flows.keys()].filter((k) => (flows.get(k)?.deadline ?? 0) < Date.now());
-    if (doomed.length) await this.ctx.storage.delete(doomed);
+    // Dead flows never see another request to settle them, so collect them
+    // two ways: a sweep on every start, and an alarm at this flow's deadline
+    // so a final abandoned flow does not sit in storage forever.
+    await this.sweepFlows();
     const { pending, display } = await oauthStart(id);
     const flowId = crypto.randomUUID();
     await this.ctx.storage.put(`oauth:flow:${flowId}`, pending);
+    await this.ctx.storage.setAlarm(pending.deadline);
     return { ...display, flowId };
+  }
+
+  /** Deletes every pending flow whose deadline has passed. */
+  private async sweepFlows(): Promise<void> {
+    const flows = await this.ctx.storage.list<PendingOAuth>({ prefix: "oauth:flow:" });
+    const doomed = [...flows.entries()].filter(([, p]) => p.deadline < Date.now()).map(([k]) => k);
+    if (doomed.length) await this.ctx.storage.delete(doomed);
+  }
+
+  /** The alarm fires at a flow's deadline; collect every flow it outlived. */
+  async alarm(): Promise<void> {
+    await this.sweepFlows();
   }
 
   /** Poll a device flow once. The GUI calls this on the provider's interval. */
@@ -165,6 +177,9 @@ export class AuthVault extends DurableObject<Env> {
       await this.ctx.storage.delete(key);
       return { status: result.status };
     }
+    // Re-store: the poll may have mutated pending (a GitHub slow_down ratchets
+    // pending.interval), and losing that would resume the throttled rate.
+    await this.ctx.storage.put(key, pending);
     return { status: "pending", retryAfter: result.retryAfter };
   }
 
