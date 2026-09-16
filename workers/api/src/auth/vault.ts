@@ -130,43 +130,47 @@ export class AuthVault extends DurableObject<Env> {
   /* ---------------------------------------------------------------- *
    * OAuth
    *
-   * Pending state lives in `oauth:<id>` with a deadline inside it. The GUI
-   * drives it: start returns a display (a device code or a URL), then either
-   * polls status (device) or posts the pasted code (code flow).
+   * Pending state lives in `oauth:flow:<flowId>` — per flow, not per
+   * provider, so two tabs signing into the same provider cannot clobber
+   * each other's verifier or device code. The GUI drives it: start returns
+   * a display (device code or URL) plus the flowId every later call needs.
    * ---------------------------------------------------------------- */
 
-  async oauthStart(id: string): Promise<OAuthDisplay> {
+  async oauthStart(id: string): Promise<OAuthDisplay & { flowId: string }> {
     const spec = providerSpec(id);
     if (!spec?.oauth) throw new Error(`${id} has no oauth flow`);
     const { pending, display } = await oauthStart(id);
-    await this.ctx.storage.put(`oauth:${id}`, pending);
-    return display;
+    const flowId = crypto.randomUUID();
+    await this.ctx.storage.put(`oauth:flow:${flowId}`, pending);
+    return { ...display, flowId };
   }
 
   /** Poll a device flow once. The GUI calls this on the provider's interval. */
-  async oauthPoll(id: string): Promise<{ status: "pending" | "done" | "expired" | "denied"; retryAfter?: number }> {
-    const pending = await this.ctx.storage.get<PendingOAuth>(`oauth:${id}`);
-    if (!pending) return { status: "denied" };
+  async oauthPoll(id: string, flowId: string): Promise<{ status: "pending" | "done" | "expired" | "denied"; retryAfter?: number }> {
+    const key = `oauth:flow:${flowId}`;
+    const pending = await this.ctx.storage.get<PendingOAuth>(key);
+    if (!pending || pending.provider !== id) return { status: "denied" };
     const result = await oauthPoll(pending);
     if (result.status === "done") {
       await this.storeBundle(id, result.bundle);
-      await this.ctx.storage.delete(`oauth:${id}`);
+      await this.ctx.storage.delete(key);
       return { status: "done" };
     }
     if (result.status !== "pending") {
-      await this.ctx.storage.delete(`oauth:${id}`);
+      await this.ctx.storage.delete(key);
       return { status: result.status };
     }
     return { status: "pending", retryAfter: result.retryAfter };
   }
 
   /** Finish a code flow with whatever the user pasted back. */
-  async oauthFinish(id: string, input: string): Promise<{ ok: boolean }> {
-    const pending = await this.ctx.storage.get<PendingOAuth>(`oauth:${id}`);
-    if (!pending) throw new Error(`no pending oauth flow for ${id}`);
+  async oauthFinish(id: string, flowId: string, input: string): Promise<{ ok: boolean }> {
+    const key = `oauth:flow:${flowId}`;
+    const pending = await this.ctx.storage.get<PendingOAuth>(key);
+    if (!pending || pending.provider !== id) throw new Error(`no pending oauth flow ${flowId} for ${id}`);
     const bundle = await oauthFinish(pending, input);
     await this.storeBundle(id, bundle);
-    await this.ctx.storage.delete(`oauth:${id}`);
+    await this.ctx.storage.delete(key);
     return { ok: true };
   }
 

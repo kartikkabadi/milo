@@ -66,7 +66,19 @@ export async function handleApi(request: Request, env: Env, _ctx: ExecutionConte
    * Secrets only ever travel browser -> Worker -> vault/sandbox. The
    * browser-facing surface returns provider metadata, OAuth display
    * instructions, and last-four hints — never a credential value.
+   *
+   * These routes mutate the vault, so they are the one part of the API
+   * behind a gate: when MILO_ADMIN_TOKEN is set (a wrangler secret), every
+   * /auth request must carry `Authorization: Bearer <token>`. Unset means
+   * open — the local-dev default.
    * ---------------------------------------------------------------- */
+
+  const adminToken = env.MILO_ADMIN_TOKEN;
+  if (adminToken && path.startsWith("/auth")) {
+    if (request.headers.get("authorization") !== `Bearer ${adminToken}`) {
+      return bad("unauthorized", 401);
+    }
+  }
 
   if (path === "/auth/providers" && method === "GET") {
     return json({ providers: await vaultStub(env).list() });
@@ -99,11 +111,13 @@ export async function handleApi(request: Request, env: Env, _ctx: ExecutionConte
   }
 
   if (path === "/auth/oauth/finish" && method === "POST") {
-    const body = (await request.json().catch(() => ({}))) as { provider?: string; input?: string };
+    const body = (await request.json().catch(() => ({}))) as
+      { provider?: string; flowId?: string; input?: string };
     if (!body.provider) return bad("provider is required");
+    if (!body.flowId) return bad("flowId is required — the id oauth/start returned");
     if (!body.input) return bad("input is required — the pasted redirect URL or code");
     try {
-      return json(await vaultStub(env).oauthFinish(body.provider, body.input));
+      return json(await vaultStub(env).oauthFinish(body.provider, body.flowId, body.input));
     } catch (err) {
       return bad(err instanceof Error ? err.message : String(err));
     }
@@ -111,8 +125,10 @@ export async function handleApi(request: Request, env: Env, _ctx: ExecutionConte
 
   if (path === "/auth/oauth/status" && method === "GET") {
     const provider = url.searchParams.get("provider");
+    const flowId = url.searchParams.get("flowId");
     if (!provider) return bad("provider is required");
-    return json(await vaultStub(env).oauthPoll(provider));
+    if (!flowId) return bad("flowId is required");
+    return json(await vaultStub(env).oauthPoll(provider, flowId));
   }
 
   /* ---------------------------------------------------------------- *

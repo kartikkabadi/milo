@@ -21,13 +21,30 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { OAuthDisplay, ProviderInfo } from "../lib/types";
 
+const ADMIN_TOKEN_KEY = "milo.adminToken";
+
+function adminToken(): string {
+  try {
+    return localStorage.getItem(ADMIN_TOKEN_KEY) ?? "";
+  } catch {
+    return "";
+  }
+}
+
 async function api<T>(path: string, init?: RequestInit): Promise<T> {
+  const token = adminToken();
   const res = await fetch(`/api${path}`, {
     ...init,
-    headers: { "content-type": "application/json", ...(init?.headers ?? {}) },
+    headers: {
+      "content-type": "application/json",
+      ...(token ? { authorization: `Bearer ${token}` } : {}),
+      ...(init?.headers ?? {}),
+    },
   });
   const body = (await res.json().catch(() => ({}))) as T & { error?: string };
-  if (!res.ok) throw new Error(body.error ?? `request failed (${res.status})`);
+  if (!res.ok) {
+    throw new Error(res.status === 401 ? "unauthorized — set the admin token below" : body.error ?? `request failed (${res.status})`);
+  }
   return body;
 }
 
@@ -91,11 +108,11 @@ function ProviderRow({
   };
 
   const poll = useCallback(
-    async (interval: number) => {
+    async (flowId: string, interval: number) => {
       pollTimer.current = window.setTimeout(async () => {
         try {
           const s = await api<{ status: string; retryAfter?: number }>(
-            `/auth/oauth/status?provider=${encodeURIComponent(provider.id)}`,
+            `/auth/oauth/status?provider=${encodeURIComponent(provider.id)}&flowId=${encodeURIComponent(flowId)}`,
           );
           if (s.status === "done") {
             setFlow(null);
@@ -103,7 +120,7 @@ function ProviderRow({
             return;
           }
           if (s.status === "pending") {
-            void poll(s.retryAfter ?? interval);
+            void poll(flowId, s.retryAfter ?? interval);
             return;
           }
           setFlow((f) => (f ? { ...f, polling: false, error: s.status === "expired" ? "expired — start again" : "denied" } : f));
@@ -124,7 +141,7 @@ function ProviderRow({
         body: JSON.stringify({ provider: provider.id }),
       });
       setFlow({ display, error: null, polling: display.kind === "device" });
-      if (display.kind === "device") void poll(display.interval);
+      if (display.kind === "device") void poll(display.flowId, display.interval);
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {
@@ -139,7 +156,7 @@ function ProviderRow({
     try {
       await api(`/auth/oauth/finish`, {
         method: "POST",
-        body: JSON.stringify({ provider: provider.id, input: paste.trim() }),
+        body: JSON.stringify({ provider: provider.id, flowId: flow?.display.flowId, input: paste.trim() }),
       });
       setFlow(null);
       setPaste("");
@@ -305,6 +322,7 @@ function ProviderRow({
 export function Connect() {
   const [providers, setProviders] = useState<ProviderInfo[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [token, setToken] = useState(adminToken);
 
   const refresh = useCallback(async () => {
     try {
@@ -338,6 +356,24 @@ export function Connect() {
           <ProviderRow key={p.id} provider={p} onChanged={refresh} />
         ))}
       </div>
+      <input
+        type="password"
+        value={token}
+        onChange={(e) => {
+          setToken(e.target.value);
+          try {
+            if (e.target.value) localStorage.setItem(ADMIN_TOKEN_KEY, e.target.value);
+            else localStorage.removeItem(ADMIN_TOKEN_KEY);
+          } catch {
+            /* private mode — the field still works for this page load */
+          }
+        }}
+        onBlur={() => void refresh()}
+        placeholder="admin token (only if MILO_ADMIN_TOKEN is set)"
+        autoComplete="off"
+        className="mt-2 w-full rounded border bg-transparent px-2 py-1 text-[10px] outline-none"
+        style={{ borderColor: "var(--border)", color: "var(--muted)" }}
+      />
       {error && (
         <p className="mt-2 text-[9px]" style={{ color: "var(--danger)" }}>
           {error}

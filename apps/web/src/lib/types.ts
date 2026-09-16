@@ -93,9 +93,10 @@ export interface ProviderInfo {
   feeds?: HarnessId[];
 }
 
-export type OAuthDisplay =
+export type OAuthDisplay = { flowId: string } & (
   | { kind: "device"; userCode: string; verificationUri: string; interval: number; expiresIn: number }
-  | { kind: "code"; url: string; instructions: string };
+  | { kind: "code"; url: string; instructions: string }
+);
 
 export const MODELS = [
   { id: "anthropic/claude-sonnet-4-6", label: "Sonnet 4.6", tier: "standard" as const },

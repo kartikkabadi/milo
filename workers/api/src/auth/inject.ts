@@ -39,9 +39,14 @@ export async function injectHarnessAuth(env: Env, sandbox: Sandbox, harness: Har
   const { map } = await vaultStub(env).project(harness);
   const count = Object.keys(map).length;
   const envVars: Record<string, string> = {};
-  if (count === 0) return { env: envVars, count };
 
   const path = harness === "pi" ? PI_AUTH_PATH : OPENCODE_AUTH_PATH;
+  if (count === 0) {
+    // An empty projection means every credential was removed. The file must go
+    // too, or a warm container keeps using the last credential it was given.
+    await sandbox.exec(cmd("rm", "-f", path));
+    return { env: envVars, count };
+  }
   await sandbox.exec(cmd("mkdir", "-p", path.slice(0, path.lastIndexOf("/"))));
   await sandbox.writeFile(path, JSON.stringify(map, null, 2));
   await sandbox.exec(cmd("chmod", "600", path));

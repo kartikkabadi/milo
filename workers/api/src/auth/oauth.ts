@@ -119,7 +119,7 @@ async function githubDeviceStart(): Promise<{ pending: PendingOAuth; display: OA
       flow: "device",
       deviceCode: d.device_code,
       interval: Math.max(d.interval ?? 5, 5),
-      deadline: Date.now() + Math.min(d.expires_in ?? 900, OAUTH_TTL_MS / 1000) * 1000,
+      deadline: Date.now() + (d.expires_in ?? 900) * 1000,
     },
     display: {
       kind: "device",
@@ -300,6 +300,11 @@ export async function oauthFinish(pending: PendingOAuth, input: string): Promise
   if (pending.flow !== "code") throw new Error("device flows finish by polling, not by code");
   const { code, state } = parsePastedCode(input, pending.verifier);
   if (!code) throw new Error("no code found in what was pasted");
+  // Anthropic binds state to the PKCE verifier, so a pasted state that is not
+  // ours is a different flow's paste — refuse it rather than forwarding it.
+  if (pending.provider === "anthropic" && state !== pending.verifier) {
+    throw new Error("state mismatch — paste the redirect this sign-in produced");
+  }
   if (pending.provider === "anthropic") return anthropicFinish(code, state, pending.verifier);
   if (pending.provider === "openrouter") return openrouterFinish(code, pending.verifier);
   throw new Error(`no code flow for ${pending.provider}`);

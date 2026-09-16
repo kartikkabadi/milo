@@ -178,6 +178,11 @@ export interface Env {
   MILO_ENV: string;
   MILO_TIER3_DUTY_TARGET: string;
   MILO_MAX_TIER3_MS_PER_WAKE: string;
+  /**
+   * Optional bearer for /api/auth routes. Set via `wrangler secret put
+   * MILO_ADMIN_TOKEN`; when unset the auth surface is open (local dev).
+   */
+  MILO_ADMIN_TOKEN?: string;
   /** Set by the outbound handler, never exposed to the sandbox. */
   GITHUB_TOKEN?: string;
   AI_GATEWAY_TOKEN?: string;

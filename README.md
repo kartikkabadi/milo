@@ -252,6 +252,7 @@ container:
 |---|---|
 | `AI_GATEWAY_TOKEN` | Tier 0 think, via AI Gateway |
 | `R2_ACCESS_KEY_ID` / `R2_SECRET_ACCESS_KEY` | only for remote-endpoint bucket mounts |
+| `MILO_ADMIN_TOKEN` | optional — when set, `/api/auth/*` requires `Authorization: Bearer`; the Connect panel stores it and sends it |
 
 ```sh
 cd workers/api

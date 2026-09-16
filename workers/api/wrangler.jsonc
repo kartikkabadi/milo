@@ -65,6 +65,9 @@
   // Secrets are set with `wrangler secret put`, never committed. See README.md.
   //
   //   AI_GATEWAY_TOKEN     - Tier 0 think. Never enters the sandbox.
+  //   MILO_ADMIN_TOKEN     - Optional. When set, every /api/auth route needs
+  //                          `Authorization: Bearer <token>` — the GUI sends it
+  //                          from the Connect panel. Unset = open (local dev).
   //
   // Provider credentials are NOT wrangler secrets. They are user credentials,
   // entered in the GUI's Connect panel and stored in the AuthVault DO. The
