@@ -27,5 +27,10 @@
   "devDependencies": {
     "@types/node": "^22.20.3",
     "typescript": "^5.9.2"
+  },
+  "overrides": {
+    "@modelcontextprotocol/sdk": "1.32.1",
+    "@fastify/busboy": "3.2.2",
+    "undici@^7": "7.30.1"
   }
 }
