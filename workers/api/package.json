@@ -11,8 +11,8 @@
   },
   "dependencies": {
     "@cloudflare/sandbox": "^0.6.11",
-    "agents": "^0.2.0",
-    "ai": "^5.0.258"
+    "agents": "^0.3.10",
+    "ai": "^6.0.0"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20250916.0",
