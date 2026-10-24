@@ -49,7 +49,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # pnpm and bun, because harnesses and user repos reach for them.
 RUN npm install -g pnpm@latest --ignore-scripts \
- && curl -fsSL https://bun.sh/install | bash \
+ && curl -fsSL https://bun.sh/install | bash -s -- bun-v1.4.4 \
  && mv /root/.bun/bin/bun /usr/local/bin/bun
 
 # The two harnesses. Two separate tools, two separate installs, no wrapper

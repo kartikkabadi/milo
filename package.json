@@ -4,7 +4,7 @@
   "private": true,
   "description": "Milo watches your repo while you sleep. Cloudflare-native GUI for running cloud coding agents at near-zero idle cost.",
   "type": "module",
-  "packageManager": "bun@1.4.2",
+  "packageManager": "bun@1.4.4",
   "engines": {
     "node": ">=20"
   },
