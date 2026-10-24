@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@cloudflare/sandbox": "^0.6.11",
-    "agents": "^0.2.0",
+    "agents": "^0.30.1",
     "ai": "^5.0.258"
   },
   "devDependencies": {
